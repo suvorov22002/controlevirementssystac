@@ -1,0 +1,195 @@
+<f:subview xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:dc="http://www.afrilandfirstbank.com/Facelets/Taglib/DialogComponent">
+
+	<dc:ParameterDialogComponent id="ParamCompensateurCentrauxDialog"
+		width="650" height="300"
+		rendered="#{paramCompensateurCentrauxDialog.open}"
+		showWhenRendered="#{paramCompensateurCentrauxDialog.open}"
+		titleIcon="#{paramCompensateurCentrauxDialog.icon}"
+		title="#{paramCompensateurCentrauxDialog.title}"
+		closeIcon="#{viewHelper.sessionSkinURL}/Images/DialogClose.png">
+
+		<ui:define name="closeIconAction">
+			<a4j:support event="onclick"
+				action="#{paramCompensateurCentrauxDialog.cancel}"
+				onsubmit="Richfaces.hideModalPanel('ParamCompensateurCentrauxDialog');"
+				immediate="true" />
+		</ui:define>
+
+		<ui:define name="defineDialogContent">
+
+
+			<table width="100%" align="center" cellpadding="2" cellspacing="2"
+				border="0">
+				<tr>
+					<td width="50%" align="left">
+						<fieldset class="fieldSetStyle">
+							<legend>
+								<h:outputText
+									value="Paramétrages de l'ouverture et de la fermeture des journées"
+									styleClass="labelStyle" />
+							</legend>
+							<table>
+
+
+								<tr>
+
+									<td align="left"><h:outputText value="Date Journée"
+											maxlength="11" styleClass="labelStyle" /></td>
+									<td><rich:calendar enableManualInput="true"
+											id="dateJournee" datePattern="dd/MM/yyyy"
+											value="#{paramCompensateurCentrauxDialog.currentObject.dateJournee}"
+											popup="true"
+											timeZone="#{paramCompensateurCentrauxDialog.timeZone}"
+											locale="#{clientArea.locale}"
+											styleClass="text ui-widget-content ui-corner-all" /> <rich:message
+											for="dateJournee" style="color:red;font-size:8px;">
+											<f:facet name="errorMarker">
+												<h:graphicImage value="/images/ajax/error.gif" />
+											</f:facet>
+										</rich:message></td>
+
+
+									<td><h:outputText value="Statut Journée"
+											styleClass="labelStyle" /> <rich:spacer width="3px" /></td>
+									<td><h:selectOneMenu id="statJournee"
+											value="#{paramCompensateurCentrauxDialog.currentObject.statutJournee}"
+											styleClass="text ui-widget-content ui-corner-all">
+											<f:selectItems
+												value="#{paramCompensateurCentrauxDialog.statutJourneeItems}" />
+										</h:selectOneMenu></td>
+								</tr>
+
+								<tr>
+									<td><h:outputText value="Tour max" styleClass="labelStyle" /></td>
+									<td><h:inputText
+											value="#{paramCompensateurCentrauxDialog.currentObject.tourMax}"
+											styleClass="text ui-widget-content ui-corner-all"
+											maxlength="2" style="width:100%;"
+											onkeypress="javascript:controleChiffres(event);" /></td>
+
+
+									<td><h:outputText value="Passer au prochain tour"
+											styleClass="labelStyle" /></td>
+									<td><a4j:commandButton value="Passer au prochain tour"
+											action="#{paramCompensateurCentrauxDialog.passProTour}"
+											onclick="startWaitInStyle();"
+											oncomplete="stoptWaitInStyle();" reRender="#{clientArea.ID}"
+											styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+											immediate="true" /></td>
+								</tr>
+
+
+
+								
+							</table>
+						</fieldset>
+					</td>
+
+
+				</tr>
+
+
+
+				<tr>
+					<td>
+
+						<fieldset class="fieldSetStyle">
+							<legend>
+								<h:outputText value="Journée en cours" styleClass="labelStyle" />
+							</legend>
+							<table>
+
+								<tr>
+
+									<td align="left"><h:outputText
+											value="Date Journée en cours" maxlength="11"
+											styleClass="labelStyle" /></td>
+									<td><rich:calendar enableManualInput="true"
+											id="dateJourneeEnCours" datePattern="dd/MM/yyyy"
+											disabled="true"
+											value="#{paramCompensateurCentrauxDialog.currentObject.dateJourneeEnCours}"
+											popup="true"
+											timeZone="#{paramCompensateurCentrauxDialog.timeZone}"
+											locale="#{clientArea.locale}"
+											styleClass="text ui-widget-content ui-corner-all" /> <rich:message
+											for="dateJourneeEnCours" style="color:red;font-size:8px;">
+											<f:facet name="errorMarker">
+												<h:graphicImage value="/images/ajax/error.gif" />
+											</f:facet>
+										</rich:message></td>
+
+
+									<td><h:outputText value="Statut Journée"
+											styleClass="labelStyle" /> <rich:spacer width="3px" /></td>
+									<td><h:selectOneMenu id="statJourneeEnCours"
+											disabled="true"
+											value="#{paramCompensateurCentrauxDialog.currentObject.statutJourneeEnCours}"
+											styleClass="text ui-widget-content ui-corner-all">
+											<f:selectItems
+												value="#{paramCompensateurCentrauxDialog.statutJourneeItems}" />
+										</h:selectOneMenu></td>
+								</tr>
+
+								<tr>
+
+									<td><h:outputText value="Tour actuelle"
+											styleClass="labelStyle" /></td>
+
+									<td><h:inputText disabled="true" maxlength="3" size="3"
+											id="tourAct"
+											value="#{paramCompensateurCentrauxDialog.tourActuel}">
+										</h:inputText></td>
+
+								</tr>
+
+							</table>
+						</fieldset>
+					</td>
+
+				</tr>
+
+
+			</table>
+
+
+
+			<table width="100%" align="center" cellpadding="0" cellspacing="0"
+				border="0">
+				<tr>
+					<td width="100%" align="right"><h:panelGrid columns="5">
+							<rich:spacer width="5px" />
+							<a4j:commandButton value="#{messages['dialog.btnvalider']}"
+								action="#{paramCompensateurCentrauxDialog.close}"
+								reRender="#{clientArea.ID}"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+							<rich:spacer width="5px" />
+							<a4j:commandButton value="#{messages['dialog.btnannuler']}"
+								action="#{paramCompensateurCentrauxDialog.cancel}"
+								onclick="Richfaces.hideModalPanel('ParamCompensateurCentrauxDialog');"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								immediate="true" />
+							<rich:spacer width="5px" />
+						</h:panelGrid></td>
+				</tr>
+			</table>
+
+		</ui:define>
+
+
+	</dc:ParameterDialogComponent>
+
+	<ui:include
+		src="#{paramCompensateurCentrauxDialog.errorDialogDefinition}" />
+	<ui:include
+		src="#{paramCompensateurCentrauxDialog.informationDialogDefinition}" />
+	<ui:include
+		src="#{paramCompensateurCentrauxDialog.waitDialogDefinition}" />
+
+</f:subview>

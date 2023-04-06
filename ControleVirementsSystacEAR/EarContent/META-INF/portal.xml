@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<afb-portal>
+	<module>
+		<code>VIR_SYSTAC</code>
+		<title>Contrôle automatique des virements reçus de Systac</title>
+		<description>Contrôle automatique des virements reçus de Systac</description>
+		<earName>VirementsSystacEAR</earName>
+		<date>28/08/2018</date>
+		<version>Version 1.0</version>
+		<developer>Stephane Mouafo</developer>
+		<address>stephane_mouafo@afrilandfirstbank.com</address>
+		<context-root>ControleVirementsSystacJSF</context-root>
+		<image>vir_systac_module.png</image>
+	</module>
+</afb-portal>

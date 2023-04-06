@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+	<persistence-unit name="ControleVirementsSystacEAR">
+		<description>Unité de Persistance de la DAO de l'application</description>
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<jta-data-source>java:/Portal-DS</jta-data-source>
+		<jar-file>../lib/ControleVirementsSystacJPA.jar</jar-file>
+		<class>afb.dsi.dpd.portal.jpa.entities.Role</class>
+		<class>afb.dsi.dpd.portal.jpa.entities.User</class>
+		<class>afb.dsi.dpd.portal.jpa.entities.DataSystem</class>
+		<class>afb.dsi.dpd.portal.jpa.entities.Module</class>
+		<class>afb.dsi.dpd.portal.jpa.entities.UserGroup</class>
+		<class>afb.dsi.dpd.portal.jpa.entities.Branch</class>
+		<class>afb.dsi.dpd.portal.jpa.entities.BranchType</class>
+		<class>afb.dsi.dpd.portal.jpa.entities.Town</class>
+		<class>afb.dsi.dpd.portal.jpa.entities.SMSWeb</class>
+
+
+		<properties>
+			<property name="hibernate.archive.autodetection" value="class, hbm" />
+			<property name="hibernate.hbm2ddl.auto" value="update" />
+			<property name="hibernate.show_sql" value="false" />
+			<property name="hibernate.format_sql" value="false" />
+			<!--<property name="hibernate.dialect" value="org.hibernate.dialect.OracleDialect" />-->
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+		</properties>
+	</persistence-unit>
+</persistence>
+
+
+
+

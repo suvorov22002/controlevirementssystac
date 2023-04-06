@@ -1,0 +1,189 @@
+<f:subview xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:dc="http://www.afrilandfirstbank.com/Facelets/Taglib/DialogComponent">
+
+	<dc:ParameterDialogComponent id="DoublonsDialog" width="800"
+		height="400" rendered="#{traitementDoublonsListPanel.doublonsDialog.open}"
+		showWhenRendered="#{traitementDoublonsListPanel.doublonsDialog.open}"
+		titleIcon="#{traitementDoublonsListPanel.doublonsDialog.icon}"
+		title="#{traitementDoublonsListPanel.doublonsDialog.title}"
+		closeIcon="#{viewHelper.sessionSkinURL}/Images/DialogClose.png">
+
+
+
+		<ui:define name="closeIconAction">
+			<a4j:support event="onclick"
+				action="#{traitementDoublonsListPanel.doublonsDialog.cancel}"
+				onsubmit="Richfaces.hideModalPanel('DoublonsDialog');"
+				immediate="true" />
+		</ui:define>
+
+
+
+		<ui:define name="defineDialogContent">
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Gestion des doublons" styleClass="labelStyle" />
+				</legend>
+
+
+				<rich:extendedDataTable var="var" id="table" width="100%"
+					height="400px" sortMode="Single" selectionMode="Single"
+					styleClass="ui-widget ui-widget-content"
+					rowClasses="row-style-impair, row-style-pair"
+					value="#{traitementDoublonsListPanel.doublonsDialog.listDoublons}"
+					cellpadding="0" cellspacing="0" enableContextMenu="true"
+					rendered="true"
+					selection="#{traitementDoublonsListPanel.doublonsDialog.selection}"
+					selectedClass="row-style-selected"
+					noDataLabel="#{messages['table.nodata']}">
+
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Agence" />
+						</f:facet>
+						<h:outputText value="#{var.agence}"
+							style="font-weight:bold; font-size:12ps;text-align:center;color:#{var.color}" />
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Num. Compte" />
+						</f:facet>
+						<h:outputText value="#{var.ncp}"
+							style="font-weight:bold; font-size:12ps;text-align:center;color:#{var.color}" />
+					</rich:column>
+					
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Nom Benef" />
+						</f:facet>
+						<h:outputText value="#{var.nomBeneficiaire}"
+							style="font-weight:bold; font-size:12ps;text-align:center;color:#{var.color}" />
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Ncp. Donneur Ordre" />
+						</f:facet>
+						<h:outputText value="#{var.ncpDonneurOrdre}"
+							style="font-weight:bold; font-size:12ps;text-align:center;color:#{var.color}" />
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Nnom Donneur Ordre" />
+						</f:facet>
+						<h:outputText value="#{var.nomDonneurOrdre}"
+							style="font-weight:bold; font-size:12ps;text-align:center;color:#{var.color}" />
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Montant" />
+						</f:facet>
+						<h:outputText value="#{var.montant}"
+							style="font-weight:bold; font-size:12ps;text-align:center;color:#{var.color}">
+							<f:convertNumber integerOnly="true" />
+						</h:outputText>
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Date Saisie" />
+						</f:facet>
+						<h:outputText value="#{var.dsai}"
+							style="font-weight:bold; font-size:12ps;text-align:center;color:#{var.color}">
+							<f:convertDateTime dateStyle="medium" pattern="dd/MM/yyyy"
+								timeZone="#{traitementDoublonsListPanel.doublonsDialog.timeZone}" />
+						</h:outputText>
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Code Opé." />
+						</f:facet>
+						<h:outputText value="#{var.ope}"
+							style="font-weight:bold; font-size:12ps;text-align:center;color:#{var.color}" />
+					</rich:column>
+					<rich:column width="15%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Libellé" />
+						</f:facet>
+						<h:outputText value="#{var.lib}"
+							style="font-weight:bold; font-size:12ps;text-align:center;color:#{var.color}" />
+					</rich:column>
+
+				
+					<rich:column width="10%">
+						<f:facet name="header">
+							<h:panelGroup>
+							<h:outputText value="Valider doublons" />
+								<h:selectBooleanCheckbox
+									value="#{traitementDoublonsListPanel.doublonsDialog.check}">
+									<a4j:support event="onclick"
+										actionListener="#{traitementDoublonsListPanel.doublonsDialog.processCheckAll}"
+										reRender="table, totalDoublons" limitToList="true" />
+								</h:selectBooleanCheckbox>
+							</h:panelGroup>
+						</f:facet>
+						<h:selectBooleanCheckbox disabled="#{var.disable}" value="#{var.select}">
+							<a4j:support event="onclick" ajaxSingle="true" reRender="table, totalDoublons"
+								limitToList="true">
+								<f:setPropertyActionListener
+									target="#{traitementDoublonsListPanel.doublonsDialog.doublonObject}"
+									value="#{var}" />
+							</a4j:support>
+						</h:selectBooleanCheckbox>
+					</rich:column>
+
+				</rich:extendedDataTable>
+
+
+				<!-- <h:outputText value="Total Doublons: " />
+				<h:inputText id="totalDoublons" style="color:blue;"
+					value="#{traitementDoublonsListPanel.doublonsDialog.totalDoublons}"
+					reRender="#{clientArea.ID}" disabled="true" />-->
+
+			</fieldset>
+
+
+			<table width="100%" align="center" cellpadding="0" cellspacing="0"
+				border="0">
+				<tr>
+					<td width="100%" align="right"><h:panelGrid columns="5">
+							<rich:spacer width="5px" />
+							<a4j:commandButton value="#{messages['dialog.btnvalider']}"
+								disabled="#{traitementDoublonsListPanel.doublonsDialog.consultation}"
+								action="#{traitementDoublonsListPanel.doublonsDialog.save}"
+								reRender="#{clientArea.ID}"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+							<rich:spacer width="5px" />
+							<a4j:commandButton value="#{messages['dialog.btnannuler']}"
+								action="#{traitementDoublonsListPanel.doublonsDialog.cancel}"
+								onclick="Richfaces.hideModalPanel('DoublonsDialog');"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								immediate="true" />
+							<rich:spacer width="5px" />
+						</h:panelGrid></td>
+				</tr>
+			</table>
+
+		</ui:define>
+
+
+	</dc:ParameterDialogComponent>
+
+	<ui:include
+		src="#{traitementDoublonsListPanel.doublonsDialog.errorDialogDefinition}" />
+	<ui:include
+		src="#{traitementDoublonsListPanel.doublonsDialog.informationDialogDefinition}" />
+	<ui:include
+		src="#{traitementDoublonsListPanel.doublonsDialog.childDialogDefinition}" />
+	<ui:include
+		src="#{traitementDoublonsListPanel.doublonsDialog.secondChildDefinition}" />
+	<ui:include
+		src="#{traitementDoublonsListPanel.doublonsDialog.waitDialogDefinition}" />
+	<ui:include
+		src="#{traitementDoublonsListPanel.doublonsDialog.reportViewer.fileDefinition}" />
+
+</f:subview>

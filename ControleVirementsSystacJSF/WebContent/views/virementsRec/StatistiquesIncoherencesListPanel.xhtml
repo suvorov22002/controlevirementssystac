@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+<ui:composition
+	template="/views/home/clientarea/AbstractListPanel.xhtml">
+
+	<ui:define name="searchAreaCriteriaContent">
+		<table align="center" cellpadding="1" cellspacing="1" width="100%">
+
+			<tr>
+
+				<td><h:outputText value="Date Début" maxlength="11"
+						styleClass="labelStyle" /></td>
+				<td><rich:calendar enableManualInput="true"
+						datePattern="dd/MM/yyyy"
+						value="#{statistiquesIncoherencesListPanel.dateDebut}" popup="true"
+						timeZone="#{statistiquesIncoherencesListPanel.timeZone}"
+						locale="#{clientArea.locale}"
+						styleClass="text ui-widget-content ui-corner-all" /></td>
+
+
+				<td><h:outputText value="Date Fin" maxlength="11"
+						styleClass="labelStyle" /></td>
+				<td><rich:calendar enableManualInput="true"
+						datePattern="dd/MM/yyyy" value="#{statistiquesIncoherencesListPanel.dateFin}"
+						popup="true" timeZone="#{statistiquesIncoherencesListPanel.timeZone}"
+						locale="#{clientArea.locale}"
+						styleClass="text ui-widget-content ui-corner-all" /></td>
+
+			</tr>
+
+
+		</table>
+
+	</ui:define>
+
+
+	<ui:define name="searchAreaButtonContent">
+		<table>
+			<tr>
+				<td><a4j:commandButton
+						rendered="#{protectedSystem.filterTraitement}"
+						action="#{statistiquesIncoherencesListPanel.processRecherche}"
+						value="Rechercher des contrôles d'incohérences"
+						styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+						reRender="#{clientArea.ID}"
+						eventsQueue="#{clientArea.requestQueue}"
+						onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+				</td>
+			</tr>
+			<tr>
+				<td><a4j:commandButton
+						rendered="false"
+						action="#{statistiquesIncoherencesListPanel.processRecherche}"
+						value="Rechercher des contrôles de doublons"
+						styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+						reRender="#{clientArea.ID}"
+						eventsQueue="#{clientArea.requestQueue}"
+						onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+				</td>
+			</tr>
+		</table>
+	</ui:define>
+
+	<ui:define name="listAreaContent">
+
+		<h:form id="form">
+			<h:panelGroup>
+
+				<rich:extendedDataTable var="var" id="table" width="100%"
+					height="300px" sortMode="Single" selectionMode="Single"
+					styleClass="ui-widget ui-widget-content"
+					rowClasses="row-style-impair, row-style-pair"
+					value="#{statistiquesIncoherencesListPanel.listIncoherences}" cellpadding="0"
+					cellspacing="0" enableContextMenu="true" rendered="true"
+					selection="#{statistiquesIncoherencesListPanel.selection}"
+					selectedClass="row-style-selected"
+					noDataLabel="#{messages['table.nodata']}">
+
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Agence" />
+						</f:facet>
+						<h:outputText value="#{var.agence}"
+							style="font-weight:bold; font-size:12ps;text-align:center;" />
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Num. Compte" />
+						</f:facet>
+						<h:outputText value="#{var.ncp}"
+							style="font-weight:bold; font-size:12ps;text-align:center;" />
+					</rich:column>
+					<rich:column width="8%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Cle Compte" />
+						</f:facet>
+						<h:outputText value="#{var.cle}"
+							style="font-weight:bold; font-size:12ps;text-align:center;" />
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Nom Benef" />
+						</f:facet>
+						<h:outputText value="#{var.nomBeneficiaire}"
+							style="font-weight:bold; font-size:12ps;text-align:center;" />
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Ncp. Donneur Ordre" />
+						</f:facet>
+						<h:outputText value="#{var.ncpDonneurOrdre}"
+							style="font-weight:bold; font-size:12ps;text-align:center;" />
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Nnom Donneur Ordre" />
+						</f:facet>
+						<h:outputText value="#{var.nomDonneurOrdre}"
+							style="font-weight:bold; font-size:12ps;text-align:center;" />
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Montant" />
+						</f:facet>
+						<h:outputText value="#{var.montant}"
+							style="font-weight:bold; font-size:12ps;text-align:center;">
+							<f:convertNumber integerOnly="true" />
+						</h:outputText>
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Date Rec." />
+						</f:facet>
+						<h:outputText value="#{var.drec}"
+							style="font-weight:bold; font-size:12ps;text-align:center;">
+							<f:convertDateTime dateStyle="medium" pattern="dd/MM/yyyy"
+								timeZone="#{statistiquesIncoherencesListPanel.timeZone}" />
+						</h:outputText>
+					</rich:column>
+					<rich:column width="10%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Code Opé." />
+						</f:facet>
+						<h:outputText value="#{var.ope}"
+							style="font-weight:bold; font-size:12ps;text-align:center;" />
+					</rich:column>
+					<rich:column width="15%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Libellé" />
+						</f:facet>
+						<h:outputText value="#{var.lib}"
+							style="font-weight:bold; font-size:12ps;text-align:center;" />
+					</rich:column>
+
+				</rich:extendedDataTable>
+
+			</h:panelGroup>
+
+		
+		</h:form>
+
+
+
+
+	</ui:define>
+
+
+
+	<ui:define name="listAreaButtonContent">
+
+		<table border="0" align="center">
+
+			<tr>
+				<td class="listAreaButtonContent"><a4j:commandButton
+						rendered="#{protectedSystem.findIncoherences}"
+						value="Imprimer Incohérences"
+						action="#{statistiquesIncoherencesListPanel.openReportIncoherences}"
+						reRender="#{clientArea.ID}"
+						eventsQueue="#{clientArea.requestQueue}"
+						onclick="startWaitInStyle();"
+						oncomplete="stoptWaitInStyle();Richfaces.showModalPanel('ReportViewer4');"
+						styleClass="ui-button ui-widget ui-state-default ui-corner-all" />
+					<rich:spacer height="5" /></td>
+			</tr>
+			<tr>
+					<td class="listAreaButtonContent"><a4j:commandButton
+						rendered="false"
+						value="Imprimer doublons"
+						action="#{statistiquesIncoherencesListPanel.openReportDoublons}"
+						reRender="#{clientArea.ID}"
+						eventsQueue="#{clientArea.requestQueue}"
+						onclick="startWaitInStyle();"
+						oncomplete="stoptWaitInStyle();Richfaces.showModalPanel('ReportViewer3');"
+						styleClass="ui-button ui-widget ui-state-default ui-corner-all" />
+					<rich:spacer height="5" /></td>
+			</tr>
+
+		</table>
+
+	</ui:define>
+
+	<ui:define name="IncludedArea">
+
+		<ui:include src="#{statistiquesIncoherencesListPanel.errorDialogDefinition}" />
+		<ui:include src="#{statistiquesIncoherencesListPanel.informationDialogDefinition}" />
+		<ui:include src="#{statistiquesIncoherencesListPanel.childDialogDefinition}" />
+		<ui:include src="#{statistiquesIncoherencesListPanel.secondChildDefinition}" />
+		<ui:include src="#{statistiquesIncoherencesListPanel.waitDialogDefinition}" />
+		<ui:include src="#{statistiquesIncoherencesListPanel.reportViewer.fileDefinition}" />
+
+
+	</ui:define>
+
+
+</ui:composition>
+
+</html>

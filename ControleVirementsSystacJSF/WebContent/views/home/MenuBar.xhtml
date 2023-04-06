@@ -1,0 +1,271 @@
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j">
+
+
+
+
+	<rich:dropDownMenu rendered="false" submitMode="ajax">
+		<f:facet name="label">
+			<h:panelGroup>
+				<h:graphicImage
+					value="#{viewHelper.sessionSkinURL}/Images/ditListPanelIcon.png" />
+				<rich:spacer styleClass="MenuImage-Title-Space" />
+				<h:outputText value="Paramétrages" />
+			</h:panelGroup>
+		</f:facet>
+
+
+		<rich:menuItem submitMode="ajax" value="Paramétrages généraux"
+			rendered="true" action="#{paramDialog.openParamDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+
+	</rich:dropDownMenu>
+
+
+
+	<rich:dropDownMenu rendered="false" submitMode="ajax">
+		<f:facet name="label">
+			<h:panelGroup>
+				<h:graphicImage
+					value="#{viewHelper.sessionSkinURL}/Images/ditListPanelIcon.png" />
+				<rich:spacer styleClass="MenuImage-Title-Space" />
+				<h:outputText value="Traitements" />
+			</h:panelGroup>
+		</f:facet>
+
+
+		<rich:menuItem submitMode="ajax" value="Traitement des doublons"
+			rendered="true" action="#{clientArea.showCurrentPanel}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();">
+			<f:setPropertyActionListener target="#{clientArea.currentPanelName}"
+				value="#{traitementDoublonsListPanel.name}" />
+		</rich:menuItem>
+
+		<rich:menuItem submitMode="ajax" value="Traitement des incohérences"
+			rendered="true" action="#{clientArea.showCurrentPanel}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();">
+			<f:setPropertyActionListener target="#{clientArea.currentPanelName}"
+				value="#{traitementIncoherencesListPanel.name}" />
+		</rich:menuItem>
+
+	</rich:dropDownMenu>
+
+
+
+	<rich:dropDownMenu rendered="false" submitMode="ajax">
+		<f:facet name="label">
+			<h:panelGroup>
+				<h:graphicImage
+					value="#{viewHelper.sessionSkinURL}/Images/ditListPanelIcon.png" />
+				<rich:spacer styleClass="MenuImage-Title-Space" />
+				<h:outputText value="Reporting" />
+			</h:panelGroup>
+		</f:facet>
+
+
+		<rich:menuItem submitMode="ajax" value="Statistiques Doublons "
+			rendered="true" action="#{clientArea.showCurrentPanel}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();">
+			<f:setPropertyActionListener target="#{clientArea.currentPanelName}"
+				value="#{statistiquesDoublonsListPanel.name}" />
+		</rich:menuItem>
+
+
+		<rich:menuItem submitMode="ajax" value="Statistiques Incohérences "
+			rendered="true" action="#{clientArea.showCurrentPanel}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();">
+			<f:setPropertyActionListener target="#{clientArea.currentPanelName}"
+				value="#{statistiquesIncoherencesListPanel.name}" />
+		</rich:menuItem>
+
+
+	</rich:dropDownMenu>
+
+
+
+
+	<rich:dropDownMenu rendered="#{protectedSystem.param}"
+		submitMode="ajax">
+		<f:facet name="label">
+			<h:panelGroup>
+				<h:graphicImage
+					value="#{viewHelper.sessionSkinURL}/Images/ditListPanelIcon.png" />
+				<rich:spacer styleClass="MenuImage-Title-Space" />
+				<h:outputText value="Paramétrages" />
+			</h:panelGroup>
+		</f:facet>
+
+		<rich:menuItem submitMode="ajax" value="Paramétrages généraux 1"
+			rendered="true" action="#{parameterGenDialog.openParamDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+
+		<rich:menuItem submitMode="ajax" value="Paramétrages généraux 2"
+			rendered="true" action="#{paramDialog.openParamDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+
+		<rich:menuItem submitMode="ajax"
+			value="Paramétrages de l'email Utilisé pour Zimbra" rendered="true"
+			action="#{paramEmailAutoDialog.openParamEmailAutoDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+	</rich:dropDownMenu>
+
+
+
+	<rich:dropDownMenu rendered="#{protectedSystem.paramCompenseCentrale}"
+		submitMode="ajax">
+		<f:facet name="label">
+			<h:panelGroup>
+				<h:graphicImage
+					value="#{viewHelper.sessionSkinURL}/Images/ditListPanelIcon.png" />
+				<rich:spacer styleClass="MenuImage-Title-Space" />
+				<h:outputText value="Paramétrage Compensateur Centrale" />
+			</h:panelGroup>
+		</f:facet>
+
+
+		<rich:menuItem submitMode="ajax" value="Paramétrages Comp. Centrale"
+			rendered="true"
+			action="#{paramCompensateurCentrauxDialog.openParamCompensateurCentrauxDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+	</rich:dropDownMenu>
+
+
+	<rich:dropDownMenu rendered="true" submitMode="ajax">
+		<f:facet name="label">
+			<h:panelGroup>
+				<h:graphicImage
+					value="#{viewHelper.sessionSkinURL}/Images/ditListPanelIcon.png" />
+				<rich:spacer styleClass="MenuImage-Title-Space" />
+				<h:outputText value="Traitements" />
+			</h:panelGroup>
+		</f:facet>
+
+		<rich:menuItem submitMode="ajax" value="Traitement Doublons"
+			rendered="#{protectedSystem.traitementDoublons}"
+			action="#{traitementDialog.openTraitementDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+		<rich:menuItem submitMode="ajax" value="Traitement des incohérences"
+			rendered="#{protectedSystem.traitementIncoherences}"
+			action="#{clientArea.showCurrentPanel}" reRender="#{clientArea.ID}"
+			eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();">
+			<f:setPropertyActionListener target="#{clientArea.currentPanelName}"
+				value="#{traitementIncoherencesListPanel.name}" />
+		</rich:menuItem>
+
+		<rich:menuItem submitMode="ajax"
+			value="Valider l'intégration des doublons contenu dans les fichiers"
+			rendered="#{protectedSystem.traitementValidationDoublonsDansFichier}"
+			action="#{validateDoublonsInFichierDialog.openValidateDoublonsInFichierDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+	</rich:dropDownMenu>
+
+
+
+	<rich:dropDownMenu rendered="true" submitMode="ajax">
+		<f:facet name="label">
+			<h:panelGroup>
+				<h:graphicImage
+					value="#{viewHelper.sessionSkinURL}/Images/ditListPanelIcon.png" />
+				<rich:spacer styleClass="MenuImage-Title-Space" />
+				<h:outputText value="Statistiques" />
+			</h:panelGroup>
+		</f:facet>
+
+		<rich:menuItem submitMode="ajax" value="Statistiques Doublons"
+			rendered="#{protectedSystem.statistiquesDoublons}"
+			action="#{statistiquesDialog.openStatistiquesDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+
+		<rich:menuItem submitMode="ajax" value="Statistiques Incohérences "
+			rendered="#{protectedSystem.statistiquesIncoherences}"
+			action="#{clientArea.showCurrentPanel}" reRender="#{clientArea.ID}"
+			eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();">
+			<f:setPropertyActionListener target="#{clientArea.currentPanelName}"
+				value="#{statistiquesIncoherencesListPanel.name}" />
+		</rich:menuItem>
+
+		<rich:menuItem submitMode="ajax" value="Statistiques Rapports"
+			rendered="#{protectedSystem.statistiquesRapports}"
+			action="#{statistiquesRapportsDialog.openStatistiquesDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+	</rich:dropDownMenu>
+
+
+	<rich:dropDownMenu rendered="#{protectedSystem.paramImpots}"
+		submitMode="ajax">
+		<f:facet name="label">
+			<h:panelGroup>
+				<h:graphicImage
+					value="#{viewHelper.sessionSkinURL}/Images/ditListPanelIcon.png" />
+				<rich:spacer styleClass="MenuImage-Title-Space" />
+				<h:outputText value="Paramétrages Impots" />
+			</h:panelGroup>
+		</f:facet>
+
+		<rich:menuItem submitMode="ajax" value="Paramétrages généraux"
+			rendered="true" action="#{paramImpotsDialog.openParamDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+	</rich:dropDownMenu>
+
+	<rich:dropDownMenu rendered="#{protectedSystem.traitementImpots}"
+		submitMode="ajax">
+		<f:facet name="label">
+			<h:panelGroup>
+				<h:graphicImage
+					value="#{viewHelper.sessionSkinURL}/Images/ditListPanelIcon.png" />
+				<rich:spacer styleClass="MenuImage-Title-Space" />
+				<h:outputText value="Traitements Impots" />
+			</h:panelGroup>
+		</f:facet>
+
+		<rich:menuItem submitMode="ajax" value="Traitement" rendered="true"
+			action="#{traitementImpotsDialog.openTraitementDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+		<rich:menuItem submitMode="ajax" value="Fichiers de Rejet"
+			rendered="true"
+			action="#{telechargeFichierRejetDialog.openTelechargeFichierRejetDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+		<rich:menuItem submitMode="ajax" value="Validation des Opérations en réservation"
+			rendered="#{protectedSystem.validationOpeReservees}"
+			action="#{validationOpeEnReservationDialog.openValidationOpeEnReservationDialog}"
+			reRender="#{clientArea.ID}" eventsQueue="#{clientArea.requestQueue}"
+			onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+	</rich:dropDownMenu>
+
+
+
+	<ui:include src="#{clientArea.waitDialogDefinition}" />
+</f:view>

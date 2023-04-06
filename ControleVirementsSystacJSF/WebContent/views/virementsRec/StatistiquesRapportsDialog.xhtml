@@ -1,0 +1,176 @@
+<f:subview xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:dc="http://www.afrilandfirstbank.com/Facelets/Taglib/DialogComponent">
+
+	<dc:ParameterDialogComponent id="StatistiquesRapportsDialog"
+		width="800" height="500" rendered="#{statistiquesRapportsDialog.open}"
+		showWhenRendered="#{statistiquesRapportsDialog.open}"
+		titleIcon="#{statistiquesRapportsDialog.icon}"
+		title="#{statistiquesRapportsDialog.title}"
+		closeIcon="#{viewHelper.sessionSkinURL}/Images/DialogClose.png">
+
+		<ui:define name="closeIconAction">
+			<a4j:support event="onclick"
+				action="#{statistiquesRapportsDialog.cancel}"
+				onsubmit="Richfaces.hideModalPanel('StatistiquesRapportsDialog');"
+				immediate="true" />
+		</ui:define>
+
+		<ui:define name="defineDialogContent">
+
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Recherche" styleClass="labelStyle" />
+				</legend>
+				<table width="100%" align="center" cellpadding="0" cellspacing="0"
+				border="0">
+
+					<tr>
+
+						<td><h:outputText value="Date Début" maxlength="11"
+								styleClass="labelStyle" /></td>
+						<td><rich:calendar enableManualInput="true"
+								datePattern="dd/MM/yyyy"
+								value="#{statistiquesRapportsDialog.dateDebut}" popup="true"
+								timeZone="#{statistiquesRapportsDialog.timeZone}"
+								locale="#{clientArea.locale}"
+								styleClass="text ui-widget-content ui-corner-all" /></td>
+
+
+						<td><h:outputText value="Date Fin" maxlength="11"
+								styleClass="labelStyle" /></td>
+						<td><rich:calendar enableManualInput="true"
+								datePattern="dd/MM/yyyy"
+								value="#{statistiquesRapportsDialog.dateFin}" popup="true"
+								timeZone="#{statistiquesRapportsDialog.timeZone}"
+								locale="#{clientArea.locale}"
+								styleClass="text ui-widget-content ui-corner-all" /></td>
+
+					</tr>
+					
+						<tr>
+						<td><a4j:commandButton rendered="true"
+								action="#{statistiquesRapportsDialog.processRecherche}"
+								value="Rechercher des Rapports"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								reRender="#{clientArea.ID}"
+								eventsQueue="#{clientArea.requestQueue}"
+								onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+						</td>
+					</tr>
+
+				</table>
+
+			</fieldset>
+
+
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Liste" styleClass="labelStyle" />
+				</legend>
+
+
+				<h:form id="form">
+					<h:panelGroup>
+
+						<rich:extendedDataTable var="var" id="table" width="100%"
+							height="300px" sortMode="Single" selectionMode="Single"
+							styleClass="ui-widget ui-widget-content"
+							rowClasses="row-style-impair, row-style-pair"
+							value="#{statistiquesRapportsDialog.listStatRapports}"
+							cellpadding="0" cellspacing="0" enableContextMenu="true"
+							rendered="true"
+							selection="#{statistiquesRapportsDialog.selection}"
+							selectedClass="row-style-selected"
+							noDataLabel="#{messages['table.nodata']}">
+
+							<rich:column width="20%" style="text-align:center;">
+								<f:facet name="header">
+									<h:outputText styleClass="headerText" value="Type" />
+								</f:facet>
+								<h:outputText value="#{var.typeProcess}"
+									style="font-weight:bold; font-size:12ps;text-align:center;" />
+							</rich:column>
+
+
+							<rich:column width="30%" style="text-align:center;">
+								<f:facet name="header">
+									<h:outputText styleClass="headerText" value="Consulter Rapport" />
+								</f:facet>
+								<h:outputLink id="download" rendered="true"
+									value="#{viewHelper.piecesJointesURL}/#{var.rapport}"
+									target="_blank">
+									<h:outputText value="Consulter Rapport" />
+								</h:outputLink>
+							</rich:column>
+
+
+							<rich:column width="20%" style="text-align:center;">
+								<f:facet name="header">
+									<h:outputText styleClass="headerText" value="Date Rapport" />
+								</f:facet>
+								<h:outputText value="#{var.dateRapport}"
+									style="font-weight:bold; font-size:12ps;text-align:center;">
+									<f:convertDateTime dateStyle="medium" pattern="dd/MM/yyyy"
+										timeZone="#{statistiquesRapportsDialog.timeZone}" />
+								</h:outputText>
+							</rich:column>
+
+
+
+						</rich:extendedDataTable>
+
+					</h:panelGroup>
+
+
+				</h:form>
+
+			</fieldset>
+
+
+
+
+			<table width="100%" align="center" cellpadding="0" cellspacing="0"
+				border="0">
+
+				<tr>
+					<td class="listAreaButtonContent"><a4j:commandButton
+							rendered="false" value="Imprimer doublons"
+							action="#{statistiquesRapportsDialog.openReportDoublons}"
+							reRender="#{clientArea.ID}"
+							eventsQueue="#{clientArea.requestQueue}"
+							onclick="startWaitInStyle();"
+							oncomplete="stoptWaitInStyle();Richfaces.showModalPanel('ReportViewer3');"
+							styleClass="ui-button ui-widget ui-state-default ui-corner-all" />
+						<rich:spacer height="5" /></td>
+				</tr>
+				<tr>
+					<td class="listAreaButtonContent"><a4j:commandButton
+							rendered="false" value="Imprimer Incohérences"
+							action="#{statistiquesRapportsDialog.openReportIncoherences}"
+							reRender="#{clientArea.ID}"
+							eventsQueue="#{clientArea.requestQueue}"
+							onclick="startWaitInStyle();"
+							oncomplete="stoptWaitInStyle();Richfaces.showModalPanel('ReportViewer4');"
+							styleClass="ui-button ui-widget ui-state-default ui-corner-all" />
+						<rich:spacer height="5" /></td>
+				</tr>
+
+			</table>
+
+		</ui:define>
+
+	</dc:ParameterDialogComponent>
+
+
+
+	<ui:include src="#{statistiquesRapportsDialog.errorDialogDefinition}" />
+	<ui:include
+		src="#{statistiquesRapportsDialog.informationDialogDefinition}" />
+	<ui:include src="#{statistiquesRapportsDialog.waitDialogDefinition}" />
+
+</f:subview>

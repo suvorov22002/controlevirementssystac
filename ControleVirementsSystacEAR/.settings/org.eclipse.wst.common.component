@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="ControleVirementsSystacEAR">
+        <wb-resource deploy-path="/" source-path="/EarContent" tag="defaultRootSource"/>
+        <dependent-module archiveName="ControleVirementsSystacJPA.jar" deploy-path="/lib" handle="module:/resource/ControleVirementsSystacJPA/ControleVirementsSystacJPA">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ControleVirementsSystacBusiness.jar" deploy-path="/" handle="module:/resource/ControleVirementsSystacBusiness/ControleVirementsSystacBusiness">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ControleVirementsSystacJSF.war" deploy-path="/" handle="module:/resource/ControleVirementsSystacJSF/ControleVirementsSystacJSF">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ControleVirementsSystacDAO.jar" deploy-path="/" handle="module:/resource/ControleVirementsSystacDAO/ControleVirementsSystacDAO">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+    </wb-module>
+</project-modules>

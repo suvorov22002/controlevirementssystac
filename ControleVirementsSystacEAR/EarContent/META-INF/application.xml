@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/application_5.xsd" version="5">
+  <display-name>ControleVirementsSystacEAR</display-name>
+  <module>
+    <ejb>ControleVirementsSystacBusiness.jar</ejb>
+  </module>
+  <module>
+    <web>
+      <web-uri>ControleVirementsSystacJSF.war</web-uri>
+      <context-root>ControleVirementsSystacJSF</context-root>
+    </web>
+  </module>
+  <module>
+    <ejb>ControleVirementsSystacDAO.jar</ejb>
+  </module>
+</application>

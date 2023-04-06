@@ -1,0 +1,453 @@
+<f:subview xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:dc="http://www.afrilandfirstbank.com/Facelets/Taglib/DialogComponent">
+
+	<dc:ParameterDialogComponent id="ParamImpotsDialog" width="700"
+		height="300" rendered="#{paramImpotsDialog.open}"
+		showWhenRendered="#{paramImpotsDialog.open}"
+		titleIcon="#{paramImpotsDialog.icon}"
+		title="#{paramImpotsDialog.title}"
+		closeIcon="#{viewHelper.sessionSkinURL}/Images/DialogClose.png">
+
+		<ui:define name="closeIconAction">
+			<a4j:support event="onclick" action="#{paramImpotsDialog.cancel}"
+				onsubmit="Richfaces.hideModalPanel('ParamImpotsDialog');"
+				immediate="true" />
+		</ui:define>
+
+		<ui:define name="defineDialogContent">
+
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Gestion des paramètrages généraux"
+						styleClass="labelStyle" />
+				</legend>
+
+
+				<fieldset class="fieldSetStyle">
+					<legend>
+						<h:outputText value="Paramétrages des répertoires"
+							styleClass="labelStyle" />
+					</legend>
+
+					<table>
+
+						<tr>
+
+							<td><h:outputText value="Répertoire Entrée"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.repertoireEntree}"
+									styleClass="text ui-widget-content ui-corner-all"
+									style="width:100%;" /> <rich:message
+									for="archivesEntreeImgAller" style="color:red;font-size:8px;">
+									<f:facet name="errorMarker">
+										<h:graphicImage value="/images/ajax/error.gif" />
+									</f:facet>
+								</rich:message></td>
+
+							<td><h:outputText value="Répertoire Archive Entrée"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.repertoireArchiveEntree}"
+									styleClass="text ui-widget-content ui-corner-all"
+									style="width:100%;" /> <rich:message
+									for="archivesEntreeImgAller" style="color:red;font-size:8px;">
+									<f:facet name="errorMarker">
+										<h:graphicImage value="/images/ajax/error.gif" />
+									</f:facet>
+								</rich:message></td>
+
+							<td align="left"><h:outputText
+									value="Date Suppression Archives" styleClass="labelStyle" /></td>
+							<td><rich:calendar enableManualInput="true"
+									id="dateSuppArImgAller"
+									onchanged="this.value = this.value.replace('mm', '00')"
+									datePattern="dd/MM/yyyy HH:mm"
+									value="#{paramImpotsDialog.currentObject.tempsArchivage}"
+									popup="true" timeZone="#{paramImpotsDialog.timeZone}"
+									locale="#{clientArea.locale}"
+									styleClass="text ui-widget-content ui-corner-all" /> <rich:message
+									for="dateSuppArImgAller" style="color:red;font-size:8px;">
+									<f:facet name="errorMarker">
+										<h:graphicImage value="/images/ajax/error.gif" />
+									</f:facet>
+								</rich:message></td>
+
+						</tr>
+
+					</table>
+
+				</fieldset>
+
+				<fieldset class="fieldSetStyle">
+					<legend>
+						<h:outputText value="Paramétrages des Champs"
+							styleClass="labelStyle" />
+					</legend>
+
+					<table>
+
+						<tr>
+							<td><h:outputText value="Code Agence Saisie"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.agsa}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+
+							<td><h:outputText value="Code Opération SYSTAC"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.opeSYSTAC}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+
+							<td><h:outputText value="Code Opération SYGMA"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.opeSYGMA}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+
+						</tr>
+
+						<tr>
+
+
+							<td><h:outputText value="Type rattaché SYSTAC"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.typSYSTAC}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+
+							<td><h:outputText value="Type rattaché SYGMA"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.typSYGMA}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+
+							<td><h:outputText value="Code devise compte 1"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.dev1}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+
+
+						</tr>
+
+
+						<tr>
+							<td><h:outputText
+									value="Indisponible hors SBF du compte 1 avant opération"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.indh1}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+							<td><h:outputText
+									value="Indisponible SBF du compte 1 avant opération"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.inds1}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+
+							<td><h:outputText value="Code devise de la transaction"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.dev}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+						</tr>
+
+
+						<tr>
+
+
+							<td><h:outputText value="Nature de la transaction"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.nat}"
+									styleClass="text ui-widget-content ui-corner-all" /></td>
+
+
+							<td><h:outputText value="Référence de lettrage"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.rlet}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+
+							<td><h:outputText
+									value="Code de la devise du compte de frais"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.devf}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+						</tr>
+
+						<tr>
+
+
+							<td><h:outputText value="Pourcentage retenue de garantie"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.prga}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+
+							<td><h:outputText value="Montant Frais SYSTAC"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.montantFraisSystac}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+
+
+							<td><h:outputText value="Montant Frais SYGMA"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.montantFraisSYGMA}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+						</tr>
+
+						<tr>
+							<td><h:outputText value="TVA en décimal" styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.tauxTax}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+
+							<td><h:outputText value="Montant Plafond SYSTAC"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.montantPlafondSystac}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+
+							<td><h:outputText value="Montant Plafond SYGMA"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.montantPlafondSYGMA}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+						</tr>
+
+						<tr>
+
+							<td><h:outputText value="Libellé Désaccord Débit"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.libelleDesaccordDebit}"
+									styleClass="text ui-widget-content ui-corner-all">
+								</h:inputText></td>
+
+							<td><h:outputText value="Montant Maximum SYSTAC (exclusif)"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.montantMaxSYSTAC}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+							<td><h:outputText value="Palier Minimum SYSTAC"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.palierMinSystac}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+						</tr>
+
+						<tr>
+
+							<td><h:outputText value="Palier Maximum SYSTAC"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.palierMaxSystac}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+							<td><h:outputText value="Palier Minimum SYGMA"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.palierMinSygma}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+
+							<td><h:outputText value="Palier Maximum SYGMA"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.palierMaxSygma}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+						</tr>
+
+						<tr>
+
+							<td><h:outputText
+									value="Pourcentage Frais Impôts en décimal (Note N° 141 AFB/DOB/DEJA/2021)"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramImpotsDialog.currentObject.pourcentageFraisImpots}"
+									styleClass="text ui-widget-content ui-corner-all"
+									onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+						</tr>
+
+					</table>
+
+
+
+					<table width="100%" align="center" cellpadding="1" cellspacing="1"
+						border="0">
+
+						<tr>
+							<td><h:outputText value="Motifs de Rejets" /></td>
+						</tr>
+
+						<tr>
+
+							<td><h:selectOneMenu value="#{paramImpotsDialog.motifRejet}"
+									styleClass="text ui-widget-content ui-corner-all">
+
+									<f:selectItems value="#{paramImpotsDialog.selectItems2}" />
+
+								</h:selectOneMenu></td>
+
+
+							<td><h:panelGrid columns="5">
+									<rich:spacer width="3px" />
+									<a4j:commandButton value="Ajouter" id="ajouterParams2"
+										action="#{paramImpotsDialog.ajouterParam2}" reRender="Table2"
+										limitToList="true" disabled="false"
+										styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+										onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+									<rich:spacer width="3px" />
+								</h:panelGrid></td>
+
+						</tr>
+
+
+
+						<tr>
+
+							<td><rich:extendedDataTable id="Table2" rendered="true"
+									var="var" rowKeyVar="row" width="200" height="90px"
+									value="#{paramImpotsDialog.listMotifsRejets}"
+									selection="#{paramImpotsDialog.selection}"
+									rowClasses="row-style-impair, row-style-pair" cellpadding="0"
+									selectionMode="multi" selectedClass="row-style-selected"
+									noDataLabel="#{messages['table.nodata']}">
+
+									<rich:column width="40%">
+										<f:facet name="header">
+											<h:panelGroup>
+												<h:outputText value="Motif Rejet" />
+											</h:panelGroup>
+										</f:facet>
+										<h:outputText value="#{var.typeRejet}" />
+									</rich:column>
+
+
+									<rich:column width="20%">
+										<f:facet name="header">Supprimer</f:facet>
+										<h:graphicImage
+											value="#{viewHelper.sessionSkinURL}/Images/DeleteRed16x.png"
+											title="Supprimer" style="cursor:pointer">
+											<a4j:support event="onclick" reRender="#{clientArea.ID}"
+												ajaxSingle="true" onsubmit="startWaitInStyle();"
+												oncomplete="stoptWaitInStyle();">
+												<f:setPropertyActionListener
+													target="#{paramImpotsDialog.deleUser2}" value="#{var}" />
+											</a4j:support>
+										</h:graphicImage>
+									</rich:column>
+
+								</rich:extendedDataTable></td>
+
+						</tr>
+
+					</table>
+
+
+
+				</fieldset>
+
+			</fieldset>
+
+
+
+			<table width="100%" align="center" cellpadding="0" cellspacing="0"
+				border="0">
+				<tr>
+					<td width="100%" align="right"><h:panelGrid columns="5">
+							<rich:spacer width="5px" />
+							<a4j:commandButton value="#{messages['dialog.btnvalider']}"
+								action="#{paramImpotsDialog.close}" reRender="#{clientArea.ID}"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+							<rich:spacer width="5px" />
+							<a4j:commandButton value="#{messages['dialog.btnannuler']}"
+								action="#{paramImpotsDialog.cancel}"
+								onclick="Richfaces.hideModalPanel('ParamImpotsDialog');"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								immediate="true" />
+							<rich:spacer width="5px" />
+						</h:panelGrid></td>
+				</tr>
+			</table>
+
+		</ui:define>
+
+
+	</dc:ParameterDialogComponent>
+
+	<ui:include src="#{paramImpotsDialog.errorDialogDefinition}" />
+	<ui:include src="#{paramImpotsDialog.informationDialogDefinition}" />
+	<ui:include src="#{paramImpotsDialog.waitDialogDefinition}" />
+
+</f:subview>

@@ -1,0 +1,119 @@
+<f:subview xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:dc="http://www.afrilandfirstbank.com/Facelets/Taglib/DialogComponent">
+
+	<dc:ParameterDialogComponent id="TraitementDialog" width="700"
+		height="150" rendered="#{traitementDialog.open}"
+		showWhenRendered="#{traitementDialog.open}"
+		titleIcon="#{traitementDialog.icon}" title="#{traitementDialog.title}"
+		closeIcon="#{viewHelper.sessionSkinURL}/Images/DialogClose.png">
+
+		<ui:define name="closeIconAction">
+			<a4j:support event="onclick" action="#{traitementDialog.cancel}"
+				onsubmit="Richfaces.hideModalPanel('TraitementDialog');"
+				immediate="true" />
+		</ui:define>
+
+		<ui:define name="defineDialogContent">
+
+
+
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Traitement de la compensation"
+						styleClass="labelStyle" />
+				</legend>
+
+				<br />
+				<fieldset class="fieldSetStyle">
+					<legend>
+						<h:outputText
+							value="Filtres pour la gestion des doublons de la compensation"
+							styleClass="labelStyle" />
+					</legend>
+
+
+					<table width="100%" align="center" cellpadding="2" cellspacing="2"
+						border="0">
+
+						<tr>
+							<td><h:outputText value="Type de Process"
+									styleClass="labelStyle" /></td>
+							<td><h:selectOneMenu value="#{traitementDialog.typeProcess}" required="true" requiredMessage="Entrer le type de process"
+									styleClass="text ui-widget-content ui-corner-all">
+									<f:selectItems value="#{traitementDialog.typeProcessItems}" />
+								</h:selectOneMenu></td>
+
+							
+						</tr>
+
+					</table>
+				</fieldset>
+
+				<br />
+				<fieldset>
+					<legend>
+						<h:outputText value="Traitement" styleClass="labelStyle" />
+					</legend>
+
+					<a4j:commandButton value="Traitement"
+						action="#{traitementDialog.traitement}"
+						reRender="#{clientArea.ID}"
+						styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+						onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+					<h:outputText value="#{traitementDialog.msgFinTraitement}"
+						styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+						style="color:blue;"
+						rendered="#{traitementDialog.statutTraitement}" />
+				</fieldset>
+				<br /> <br />
+				<fieldset>
+					<legend>
+						<h:outputText value="Archivage" styleClass="labelStyle" />
+					</legend>
+
+					<a4j:commandButton value="Fin Contrôle Visuel"
+						action="#{traitementDialog.archivage}" reRender="#{clientArea.ID}"
+						styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+						onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+
+				</fieldset>
+			</fieldset>
+
+
+			<table width="100%" align="center" cellpadding="0" cellspacing="0"
+				border="0">
+				<tr>
+					<td width="100%" align="right"><h:panelGrid columns="5">
+							<rich:spacer width="5px" />
+							<a4j:commandButton value="#{messages['dialog.btnvalider']}" rendered="false"
+								action="#{traitementDialog.close}" reRender="#{clientArea.ID}"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+							<rich:spacer width="5px" />
+							<a4j:commandButton value="Fermer"
+								action="#{traitementDialog.cancel}"
+								onclick="Richfaces.hideModalPanel('TraitementDialog');"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								immediate="true" />
+							<rich:spacer width="5px" />
+						</h:panelGrid></td>
+				</tr>
+			</table>
+
+		</ui:define>
+
+
+	</dc:ParameterDialogComponent>
+
+	<ui:include src="#{traitementDialog.errorDialogDefinition}" />
+	<ui:include src="#{traitementDialog.informationDialogDefinition}" />
+	<ui:include src="#{traitementDialog.waitDialogDefinition}" />
+	<ui:include src="#{traitementDialog.reportViewer.fileDefinition}" />
+
+</f:subview>

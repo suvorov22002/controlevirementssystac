@@ -1,0 +1,187 @@
+<f:subview xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:dc="http://www.afrilandfirstbank.com/Facelets/Taglib/DialogComponent">
+
+	<dc:ParameterDialogComponent id="ValidationOpeEnReservationDialog"
+		width="1000" height="50"
+		rendered="#{validationOpeEnReservationDialog.open}"
+		showWhenRendered="#{validationOpeEnReservationDialog.open}"
+		titleIcon="#{validationOpeEnReservationDialog.icon}"
+		title="#{validationOpeEnReservationDialog.title}"
+		closeIcon="#{viewHelper.sessionSkinURL}/Images/DialogClose.png">
+
+		<ui:define name="closeIconAction">
+			<a4j:support event="onclick"
+				action="#{validationOpeEnReservationDialog.cancel}"
+				onsubmit="Richfaces.hideModalPanel('ValidationOpeEnReservationDialog');"
+				immediate="true" />
+		</ui:define>
+
+		<ui:define name="defineDialogContent">
+
+
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Validation des Opérations en Réservations"
+						styleClass="labelStyle" />
+				</legend>
+
+
+				<table width="100%" align="center" cellpadding="2" cellspacing="2"
+					border="0">
+
+					<tr>
+						<td><h:outputText value="Code Opération"
+								styleClass="labelStyle" /></td>
+						<td><h:inputText
+								value="#{validationOpeEnReservationDialog.ope}"
+								styleClass="text ui-widget-content ui-corner-all"
+								maxlength="255" /></td>
+
+						<td><h:outputText value="Numéro de Compte (ncp)"
+								styleClass="labelStyle" /></td>
+						<td><h:inputText
+								value="#{validationOpeEnReservationDialog.ncp1}"
+								styleClass="text ui-widget-content ui-corner-all"
+								maxlength="30" /></td>
+
+					</tr>
+
+					<tr>
+
+						<td><h:outputText value="Utilisateur" styleClass="labelStyle" /></td>
+						<td><h:inputText
+								value="#{validationOpeEnReservationDialog.uti}"
+								styleClass="text ui-widget-content ui-corner-all"
+								maxlength="255" /></td>
+
+						<td align="left"><h:outputText value="Date de Saisie"
+								styleClass="labelStyle" /></td>
+						<td><rich:calendar enableManualInput="false" id="dateJournee"
+								datePattern="dd/MM/yyyy"
+								value="#{validationOpeEnReservationDialog.dsai}"
+								popup="true"
+								timeZone="#{validationOpeEnReservationDialog.timeZone}"
+								locale="#{clientArea.locale}"
+								styleClass="text ui-widget-content ui-corner-all" /> <rich:message
+								for="dateJournee" style="color:red;font-size:8px;">
+								<f:facet name="errorMarker">
+									<h:graphicImage value="/images/ajax/error.gif" />
+								</f:facet>
+							</rich:message></td>
+
+						<td><a4j:commandButton value="Rechercher"
+								action="#{validationOpeEnReservationDialog.processRecherche}"
+								reRender="#{clientArea.ID}"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+							<rich:spacer width="5px" /></td>
+
+					</tr>
+
+				</table>
+
+				<rich:extendedDataTable id="Table2" rendered="true" var="var"
+					rowKeyVar="row" width="600" height="100px"
+					value="#{validationOpeEnReservationDialog.listOpe}"
+					selection="#{validationOpeEnReservationDialog.selection}"
+					rowClasses="row-style-impair, row-style-pair" cellpadding="0"
+					selectionMode="multi" selectedClass="row-style-selected"
+					noDataLabel="#{messages['table.nodata']}">
+
+					<rich:column width="20%">
+						<f:facet name="header">
+							<h:panelGroup>
+								<h:outputText value="Code Operation" />
+							</h:panelGroup>
+						</f:facet>
+						<h:outputText value="#{var.ope}" />
+					</rich:column>
+
+					<rich:column width="20%">
+						<f:facet name="header">
+							<h:panelGroup>
+								<h:outputText value="Numéro compte" />
+							</h:panelGroup>
+						</f:facet>
+						<h:outputText value="#{var.ncp1}" />
+					</rich:column>
+
+					<rich:column width="20%">
+						<f:facet name="header">
+							<h:panelGroup>
+								<h:outputText value="Montant" />
+							</h:panelGroup>
+						</f:facet>
+						<h:outputText value="#{var.mon1}" />
+					</rich:column>
+
+					<rich:column width="20%">
+						<f:facet name="header">
+							<h:panelGroup>
+								<h:outputText value="Uti" />
+							</h:panelGroup>
+						</f:facet>
+						<h:outputText value="#{var.uti}" />
+					</rich:column>
+
+					<rich:column width="20%" style="text-align:center;">
+						<f:facet name="header">
+							<h:outputText styleClass="headerText" value="Date Saisie" />
+						</f:facet>
+						<h:outputText value="#{var.dsai}"
+							style="font-weight:bold; font-size:12ps;text-align:center;">
+							<f:convertDateTime dateStyle="medium" pattern="dd/MM/yyyy"
+								timeZone="#{validationOpeEnReservationDialog.timeZone}" />
+						</h:outputText>
+					</rich:column>
+
+				</rich:extendedDataTable>
+
+
+
+				<table width="100%" align="center" cellpadding="0" cellspacing="0"
+					border="0">
+					<tr>
+						<td width="100%" align="center"><h:panelGrid columns="5">
+								<rich:spacer width="5px" />
+								<a4j:commandButton value="#{messages['dialog.btnvalider']}"
+									action="#{validationOpeEnReservationDialog.close}"
+									reRender="#{clientArea.ID}"
+									styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+									onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+								<rich:spacer width="5px" />
+								<a4j:commandButton value="#{messages['dialog.btnannuler']}"
+									action="#{validationOpeEnReservationDialog.cancel}"
+									onclick="Richfaces.hideModalPanel('ValidationOpeEnReservationDialog');"
+									styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+									immediate="true" />
+								<rich:spacer width="5px" />
+							</h:panelGrid></td>
+
+					</tr>
+
+				</table>
+
+			</fieldset>
+
+
+
+
+		</ui:define>
+
+
+	</dc:ParameterDialogComponent>
+
+	<ui:include
+		src="#{validationOpeEnReservationDialog.errorDialogDefinition}" />
+	<ui:include
+		src="#{validationOpeEnReservationDialog.informationDialogDefinition}" />
+	<ui:include
+		src="#{validationOpeEnReservationDialog.waitDialogDefinition}" />
+
+</f:subview>

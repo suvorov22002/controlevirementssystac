@@ -1,0 +1,264 @@
+<f:subview xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:dc="http://www.afrilandfirstbank.com/Facelets/Taglib/DialogComponent">
+
+	<dc:ParameterDialogComponent id="ParamDialog" width="900" height="150"
+		rendered="#{paramDialog.open}" showWhenRendered="#{paramDialog.open}"
+		titleIcon="#{paramDialog.icon}" title="#{paramDialog.title}"
+		closeIcon="#{viewHelper.sessionSkinURL}/Images/DialogClose.png">
+
+		<ui:define name="closeIconAction">
+			<a4j:support event="onclick" action="#{paramDialog.cancel}"
+				onsubmit="Richfaces.hideModalPanel('ParamDialog');" immediate="true" />
+		</ui:define>
+
+		<ui:define name="defineDialogContent">
+
+
+
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Gestion des paramètrages généraux 2"
+						styleClass="labelStyle" />
+				</legend>
+
+
+				<fieldset class="fieldSetStyle">
+					<legend>
+						<h:outputText
+							value="Caracteristiques de doublons dans les virements"
+							styleClass="labelStyle" />
+					</legend>
+
+					<table width="100%" align="center" cellpadding="1" cellspacing="1"
+						border="0">
+
+						<tr>
+
+							<td><h:selectOneMenu id="typeParams" disabled="false"
+									value="#{paramDialog.typeParam}"
+									styleClass="text ui-widget-content ui-corner-all">
+
+									<f:selectItems value="#{paramDialog.selectItems2}" />
+
+								</h:selectOneMenu></td>
+
+						</tr>
+
+
+						<tr>
+							<td><h:panelGrid columns="5">
+									<rich:spacer width="3px" />
+									<a4j:commandButton value="Ajouter" id="ajouterParams"
+										action="#{paramDialog.ajouterParam}" reRender="Table"
+										limitToList="true" disabled="false"
+										styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+										onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+									<rich:spacer width="3px" />
+								</h:panelGrid></td>
+						</tr>
+
+
+						<tr>
+							<td><rich:extendedDataTable id="Table" rendered="true"
+									var="var" rowKeyVar="row" width="700" height="200px"
+									value="#{paramDialog.caracVir}"
+									selection="#{paramDialog.selection}"
+									rowClasses="row-style-impair, row-style-pair" cellpadding="0"
+									selectionMode="multi" selectedClass="row-style-selected"
+									noDataLabel="#{messages['table.nodata']}">
+
+									<rich:column width="40%">
+										<f:facet name="header">
+											<h:panelGroup>
+												<h:outputText value="Paramètre" />
+											</h:panelGroup>
+										</f:facet>
+										<h:outputText value="#{var.caracteristiquesItems.value}" />
+									</rich:column>
+
+
+									<rich:column width="20%">
+										<f:facet name="header">Supprimer</f:facet>
+										<h:graphicImage
+											value="#{viewHelper.sessionSkinURL}/Images/DeleteRed16x.png"
+											title="Supprimer" style="cursor:pointer">
+											<a4j:support event="onclick" reRender="Table"
+												ajaxSingle="true" onsubmit="startWaitInStyle();"
+												oncomplete="stoptWaitInStyle();">
+												<f:setPropertyActionListener
+													target="#{paramDialog.deleUser}" value="#{var}" />
+											</a4j:support>
+										</h:graphicImage>
+									</rich:column>
+
+								</rich:extendedDataTable></td>
+
+						</tr>
+
+					</table>
+
+				</fieldset>
+
+
+				<fieldset class="fieldSetStyle">
+					<legend>
+						<h:outputText
+							value="Paramétrage contrôle des incohérences dans les intitulés de compte"
+							styleClass="labelStyle" />
+					</legend>
+
+					<table width="100%" align="center" cellpadding="1" cellspacing="1"
+						border="0">
+						<tr>
+							<td><h:outputText value="Montant Plancher"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText value="#{paramDialog.montant}"
+									styleClass="text ui-widget-content ui-corner-all"
+									maxlength="20" onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+
+							<td><h:outputText value="Code Opposition à utiliser"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText value="#{paramDialog.currentObject.opp}"
+									styleClass="text ui-widget-content ui-corner-all" maxlength="3"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+
+							<td><h:outputText
+									value="Code Opération Virements Rec. Systac"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramDialog.currentObject.opeSystac}"
+									styleClass="text ui-widget-content ui-corner-all" maxlength="3"
+									onkeypress="javascript:controleChiffres(event);" /></td>
+
+						</tr>
+
+						<tr>
+
+							<td><h:outputText value="Seuil" styleClass="labelStyle" /></td>
+							<td><h:inputText value="#{paramDialog.currentObject.seuil}"
+									styleClass="text ui-widget-content ui-corner-all"
+									maxlength="20" onkeypress="javascript:controleChiffres(event);">
+								</h:inputText></td>
+
+
+							<td><h:outputText value="Chapitres à exclure"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText
+									value="#{paramDialog.currentObject.chapitres}"
+									styleClass="text ui-widget-content ui-corner-all"
+									maxlength="20">
+								</h:inputText></td>
+
+							<td><h:outputText value="Gestion Sigle"
+									styleClass="labelStyle" /></td>
+							<td><h:selectBooleanCheckbox
+									value="#{paramDialog.currentObject.gestionSigle}" /></td>
+						</tr>
+
+						<tr>
+							<td><h:outputText value="Activation deuxième Algo (Division Euclidienne)"
+									styleClass="labelStyle" /></td>
+							<td><h:selectBooleanCheckbox
+									value="#{paramDialog.currentObject.gestionAlgo2}" /></td>
+						</tr>
+
+					</table>
+
+
+					<table width="100%" align="center" cellpadding="1" cellspacing="1"
+						border="0">
+						<tr>
+
+							<td><h:outputText value="Mot Clé / Ponctuation"
+									styleClass="labelStyle" /></td>
+							<td><h:inputText value="#{paramDialog.motCle}"
+									styleClass="text ui-widget-content ui-corner-all" /></td>
+
+							<td><h:panelGrid columns="5">
+									<rich:spacer width="3px" />
+									<a4j:commandButton value="Ajouter" id="ajouterParams2"
+										action="#{paramDialog.ajouterParam2}" reRender="Table2"
+										limitToList="true" disabled="false"
+										styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+										onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+									<rich:spacer width="3px" />
+								</h:panelGrid></td>
+
+						</tr>
+
+						<tr>
+
+							<td><rich:extendedDataTable id="Table2" rendered="true"
+									var="var" rowKeyVar="row" width="200" height="90px"
+									value="#{paramDialog.listMotsCles}"
+									selection="#{paramDialog.selection}"
+									rowClasses="row-style-impair, row-style-pair" cellpadding="0"
+									selectionMode="multi" selectedClass="row-style-selected"
+									noDataLabel="#{messages['table.nodata']}">
+
+									<rich:column width="40%">
+										<f:facet name="header">
+											<h:panelGroup>
+												<h:outputText value="Mot Clé / Ponctuation" />
+											</h:panelGroup>
+										</f:facet>
+										<h:outputText value="#{var.motCles}" />
+									</rich:column>
+
+
+									<rich:column width="20%">
+										<f:facet name="header">Supprimer</f:facet>
+										<h:graphicImage
+											value="#{viewHelper.sessionSkinURL}/Images/DeleteRed16x.png"
+											title="Supprimer" style="cursor:pointer">
+											<a4j:support event="onclick" reRender="#{clientArea.ID}"
+												ajaxSingle="true" onsubmit="startWaitInStyle();"
+												oncomplete="stoptWaitInStyle();">
+												<f:setPropertyActionListener
+													target="#{paramDialog.deleUser2}" value="#{var}" />
+											</a4j:support>
+										</h:graphicImage>
+									</rich:column>
+
+								</rich:extendedDataTable></td>
+
+							<td width="100%" align="right"><h:panelGrid columns="5">
+									<rich:spacer width="5px" />
+									<a4j:commandButton value="#{messages['dialog.btnvalider']}"
+										action="#{paramDialog.close}" reRender="#{clientArea.ID}"
+										styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+										onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+									<rich:spacer width="5px" />
+									<a4j:commandButton value="#{messages['dialog.btnannuler']}"
+										action="#{paramDialog.cancel}"
+										onclick="Richfaces.hideModalPanel('ParamDialog');"
+										styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+										immediate="true" />
+									<rich:spacer width="5px" />
+								</h:panelGrid></td>
+						</tr>
+
+					</table>
+
+				</fieldset>
+
+			</fieldset>
+
+		</ui:define>
+
+
+	</dc:ParameterDialogComponent>
+
+	<ui:include src="#{paramDialog.errorDialogDefinition}" />
+	<ui:include src="#{paramDialog.informationDialogDefinition}" />
+	<ui:include src="#{paramDialog.waitDialogDefinition}" />
+
+</f:subview>

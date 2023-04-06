@@ -1,0 +1,692 @@
+<f:subview xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:dc="http://www.afrilandfirstbank.com/Facelets/Taglib/DialogComponent">
+
+	<dc:ParameterDialogComponent id="ParameterGenDialog" width="1000"
+		height="50" rendered="#{parameterGenDialog.open}"
+		showWhenRendered="#{parameterGenDialog.open}"
+		titleIcon="#{parameterGenDialog.icon}"
+		title="#{parameterGenDialog.title}"
+		closeIcon="#{viewHelper.sessionSkinURL}/Images/DialogClose.png">
+
+		<ui:define name="closeIconAction">
+			<a4j:support event="onclick" action="#{parameterGenDialog.cancel}"
+				onsubmit="Richfaces.hideModalPanel('ParameterGenDialog');"
+				immediate="true" />
+		</ui:define>
+
+		<ui:define name="defineDialogContent">
+
+
+
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Gestion des paramétrages généraux"
+						styleClass="labelStyle" />
+				</legend>
+
+
+				<fieldset class="fieldSetStyle">
+					<legend>
+						<h:outputText
+							value="Paramétrage liés au module de gestion des doublons de télécompensation"
+							styleClass="labelStyle" />
+					</legend>
+
+
+					<table width="100%" align="center" cellpadding="2" cellspacing="2"
+						border="0">
+						<tr>
+							<td width="25%" align="left">
+								<fieldset class="fieldSetStyle">
+									<legend>
+										<h:outputText
+											value="Paramétrages des Processus de la Phase Aller"
+											styleClass="labelStyle" />
+									</legend>
+									<table>
+										<tr>
+											<td>
+												<fieldset class="fieldSetStyle">
+													<legend>
+														<h:outputText
+															value="Paramétrages Rapatriement des images et signatures des remises scannerisés de nos agences vers poste centr. télécomp. "
+															styleClass="labelStyle" />
+													</legend>
+													<table>
+														<tr>
+															<td><h:outputText value="Répertoire d'entrée"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireEntreeCollecteImageAller}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="entrant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														
+															<td><h:outputText value="Répertoire de destination OK"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireDestinationCollecteImageAller}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="sortant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+
+														<tr>
+															<td><h:outputText value="Répertoire d'archivage"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireArchivageCollecteImageAller}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message
+																	for="archivesOrig" style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														
+														
+															<td><h:outputText value="Répertoire Archive Entrée"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireArchiveEntreeCollecteImageAller}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message
+																	for="archivesEntreeImgAller"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+														<tr>
+
+															<td align="left"><h:outputText
+																	value="Date Suppression Archives" maxlength="11"
+																	styleClass="labelStyle" /></td>
+															<td><rich:calendar enableManualInput="false"
+																	id="dateSuppArImgAller"
+																	onchanged="this.value = this.value.replace('mm', '00')"
+																	datePattern="dd/MM/yyyy HH:mm"
+																	value="#{parameterGenDialog.currentObject.tempsArchivageCollecteImageAller}"
+																	popup="true" timeZone="#{parameterGenDialog.timeZone}"
+																	locale="#{clientArea.locale}"
+																	styleClass="text ui-widget-content ui-corner-all" /> <rich:message
+																	for="dateSuppArImgAller"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+																
+																
+																<td><h:outputText value="Répertoire de destination KO"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireDestinationCollecteImageAllerKO}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="sortant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+
+														</tr>
+
+													</table>
+												</fieldset>
+											</td>
+										</tr>
+
+										<tr>
+											<td>
+												<fieldset class="fieldSetStyle">
+													<legend>
+														<h:outputText
+															value="Paramétrages Transfert du fichier de comptablisation des valeurs (aller - ENV) vers SYSTAC"
+															styleClass="labelStyle" />
+													</legend>
+													<table>
+														<tr>
+															<td><h:outputText value="Répertoire d'entrée"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireEntreeFichierComptabilisationAller}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="entrant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														
+															<td><h:outputText value="Répertoire de destination OK"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireDestinationFichierComptabilisationAller}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="sortant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+
+														<tr>
+															<td><h:outputText value="Répertoire d'archivage"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireArchivageFichierComptabilisationAller}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message
+																	for="archivesOrig" style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														
+															<td><h:outputText value="Répertoire Archive Entrée"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireArchiveEntreeFichierComptabilisationAller}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message
+																	for="archivesEntreeFC" style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+														<tr>
+															<td align="left"><h:outputText
+																	value="Date Suppression Archives" maxlength="11"
+																	styleClass="labelStyle" /></td>
+															<td><rich:calendar enableManualInput="false"
+																	id="dateSuppArEnvAller"
+																	onchanged="this.value = this.value.replace('mm', '00')"
+																	datePattern="dd/MM/yyyy HH:mm"
+																	value="#{parameterGenDialog.currentObject.tempsArchivageFichierComptabilisationAller}"
+																	popup="true" timeZone="#{parameterGenDialog.timeZone}"
+																	locale="#{clientArea.locale}"
+																	styleClass="text ui-widget-content ui-corner-all" /> <rich:message
+																	for="dateSuppArEnvAller"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+																
+																
+															<td><h:outputText value="Répertoire de destination KO"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireDestinationFichierComptabilisationAllerKO}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="sortant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+													</table>
+												</fieldset>
+											</td>
+										</tr>
+
+									</table>
+
+								</fieldset>
+							</td>
+
+							<td width="25%" align="right">
+								<fieldset class="fieldSetStyle">
+									<legend>
+										<h:outputText
+											value="Paramétrages des Processus de la Phase Retour"
+											styleClass="labelStyle" />
+									</legend>
+									<table>
+										<tr>
+											<td>
+												<fieldset class="fieldSetStyle">
+													<legend>
+														<h:outputText
+															value="Paramétrages Rapatriement des images et signatures des remises scannerisés des agences des confrères sur poste centr. télécomp. "
+															styleClass="labelStyle" />
+													</legend>
+													<table>
+														<tr>
+															<td><h:outputText value="Répertoire d'entrée"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireEntreeCollecteImageRetour}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="entrant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														
+															<td><h:outputText value="Répertoire de destination OK"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireDestinationCollecteImageRetour}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="sortant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+
+														<tr>
+															<td><h:outputText value="Répertoire d'archivage"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireArchivageCollecteImageRetour}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message
+																	for="archivesOrig" style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														
+															<td><h:outputText value="Répertoire Archive Entrée"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireArchiveEntreeCollecteImageRetour}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message
+																	for="archivesEntreCIR" style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+														<tr>
+															<td align="left"><h:outputText
+																	value="Date Suppression Archives" maxlength="11"
+																	styleClass="labelStyle" /></td>
+															<td><rich:calendar enableManualInput="false"
+																	id="dateSuppArImgRetour"
+																	onchanged="this.value = this.value.replace('mm', '00')"
+																	datePattern="dd/MM/yyyy HH:mm"
+																	value="#{parameterGenDialog.currentObject.tempsArchivageCollecteImageRetour}"
+																	popup="true" timeZone="#{parameterGenDialog.timeZone}"
+																	locale="#{clientArea.locale}"
+																	styleClass="text ui-widget-content ui-corner-all" /> <rich:message
+																	for="dateSuppArImgRetour"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+																
+																
+															<td><h:outputText value="Répertoire de destination KO"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireDestinationCollecteImageRetourKO}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="sortant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+													</table>
+												</fieldset>
+											</td>
+										</tr>
+
+										<tr>
+											<td>
+												<fieldset class="fieldSetStyle">
+													<legend>
+														<h:outputText
+															value="Paramétrages Transfert du fichier de comptablisation des valeurs (retour - RCP) vers le SI"
+															styleClass="labelStyle" />
+													</legend>
+													<table>
+														<tr>
+															<td><h:outputText value="Répertoire d'entrée"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireEntreeFichierComptabilisationRetour}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="entrant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														
+															<td><h:outputText value="Répertoire de destination OK"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireDestinationFichierComptabilisationRetour}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="sortant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+
+														<tr>
+															<td><h:outputText value="Répertoire d'archivage"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireArchivageFichierComptabilisationRetour}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message
+																	for="archivesOrig" style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														
+															<td><h:outputText value="Répertoire Archive Entrée"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireArchiveEntreeFichierComptabilisationRetour}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message
+																	for="archivesEntreeFCR" style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+
+
+														<tr>
+															<td align="left"><h:outputText
+																	value="Date Suppression Archives" maxlength="11"
+																	styleClass="labelStyle" /></td>
+															<td><rich:calendar enableManualInput="false"
+																	id="dateSuppArRcpRetour"
+																	onchanged="this.value = this.value.replace('mm', '00')"
+																	datePattern="dd/MM/yyyy HH:mm"
+																	value="#{parameterGenDialog.currentObject.tempsArchivageFichierComptabilisationRetour}"
+																	popup="true" timeZone="#{parameterGenDialog.timeZone}"
+																	locale="#{clientArea.locale}"
+																	styleClass="text ui-widget-content ui-corner-all" /> <rich:message
+																	for="dateSuppArRcpRetour"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+																
+																
+																	<td><h:outputText value="Répertoire de destination KO"
+																	styleClass="labelStyle" /></td>
+															<td><h:inputText
+																	value="#{parameterGenDialog.currentObject.repertoireDestinationFichierComptabilisationRetourKO}"
+																	styleClass="text ui-widget-content ui-corner-all"
+																	style="width:100%;" /> <rich:message for="sortant"
+																	style="color:red;font-size:8px;">
+																	<f:facet name="errorMarker">
+																		<h:graphicImage value="/images/ajax/error.gif" />
+																	</f:facet>
+																</rich:message></td>
+														</tr>
+
+													</table>
+												</fieldset>
+											</td>
+										</tr>
+
+									</table>
+
+								</fieldset>
+							</td>
+
+						</tr>
+
+						<tr>
+
+							<td width="25%" align="left">
+								<fieldset class="fieldSetStyle">
+									<legend>
+										<h:outputText value="Paramétrages des Caractères Spéciaux"
+											styleClass="labelStyle" />
+									</legend>
+
+									<table>
+										<tr>
+											<td><h:outputText value="Caractère Spécial"
+													styleClass="labelStyle" /></td>
+											<td><h:inputText
+													value="#{parameterGenDialog.caractereSpecial}"
+													styleClass="text ui-widget-content ui-corner-all"
+													maxlength="255" /></td>
+
+											<td><h:outputText value="Caractère de Remplacement"
+													styleClass="labelStyle" /></td>
+											<td><h:inputText
+													value="#{parameterGenDialog.caractereDeRemplacement}"
+													styleClass="text ui-widget-content ui-corner-all"
+													maxlength="255" /></td>
+
+
+										</tr>
+
+										<tr>
+											<td><h:panelGrid columns="5">
+													<rich:spacer width="3px" />
+													<a4j:commandButton value="Ajouter"
+														action="#{parameterGenDialog.ajouterParam2}"
+														reRender="#{clientArea.ID}" limitToList="true"
+														styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+														onclick="startWaitInStyle();"
+														oncomplete="stoptWaitInStyle();" />
+													<rich:spacer width="3px" />
+													<rich:spacer width="5px" />
+												</h:panelGrid></td>
+
+
+											<td><rich:extendedDataTable id="Table3" rendered="true"
+													var="var" rowKeyVar="row" width="200" height="100px"
+													value="#{parameterGenDialog.listCaracteresSpeciauxs}"
+													selection="#{parameterGenDialog.selection}"
+													rowClasses="row-style-impair, row-style-pair"
+													cellpadding="0" selectionMode="multi"
+													selectedClass="row-style-selected"
+													noDataLabel="#{messages['table.nodata']}">
+
+													<rich:column width="40%">
+														<f:facet name="header">
+															<h:panelGroup>
+																<h:outputText value="Caractère Spécial" />
+															</h:panelGroup>
+														</f:facet>
+														<h:outputText value="#{var.caractereSpecial}" />
+													</rich:column>
+
+
+													<rich:column width="20%">
+														<f:facet name="header">Supprimer</f:facet>
+														<h:graphicImage
+															value="#{viewHelper.sessionSkinURL}/Images/DeleteRed16x.png"
+															title="Supprimer" style="cursor:pointer">
+															<a4j:support event="onclick" reRender="#{clientArea.ID}"
+																ajaxSingle="true" onsubmit="startWaitInStyle();"
+																oncomplete="stoptWaitInStyle();">
+																<f:setPropertyActionListener
+																	target="#{parameterGenDialog.deleUser2}" value="#{var}" />
+															</a4j:support>
+														</h:graphicImage>
+													</rich:column>
+
+												</rich:extendedDataTable></td>
+										</tr>
+									</table>
+
+
+								</fieldset>
+
+							</td>
+
+
+
+							<td width="25%" align="right">
+								<fieldset class="fieldSetStyle">
+									<legend>
+										<h:outputText value="Paramétrages des Emails des superviseurs"
+											styleClass="labelStyle" />
+									</legend>
+
+									<table>
+										<tr>
+											<td><h:outputText value="Nom" styleClass="labelStyle" /></td>
+											<td><h:inputText value="#{parameterGenDialog.nom}"
+													styleClass="text ui-widget-content ui-corner-all"
+													maxlength="255" /></td>
+
+											<td><h:outputText value="Email" styleClass="labelStyle" /></td>
+											<td><h:inputText value="#{parameterGenDialog.email}"
+													styleClass="text ui-widget-content ui-corner-all"
+													maxlength="255" /></td>
+
+
+										</tr>
+										<tr>
+											<td><h:panelGrid columns="5">
+													<rich:spacer width="3px" />
+													<a4j:commandButton value="Ajouter"
+														action="#{parameterGenDialog.ajouterParam}"
+														reRender="#{clientArea.ID}" limitToList="true"
+														styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+														onclick="startWaitInStyle();"
+														oncomplete="stoptWaitInStyle();" />
+													<rich:spacer width="3px" />
+													<rich:spacer width="5px" />
+												</h:panelGrid></td>
+
+											<td><rich:extendedDataTable id="Table2" rendered="true"
+													var="var" rowKeyVar="row" width="200" height="100px"
+													value="#{parameterGenDialog.emails}"
+													selection="#{parameterGenDialog.selection}"
+													rowClasses="row-style-impair, row-style-pair"
+													cellpadding="0" selectionMode="multi"
+													selectedClass="row-style-selected"
+													noDataLabel="#{messages['table.nodata']}">
+
+													<rich:column width="40%">
+														<f:facet name="header">
+															<h:panelGroup>
+																<h:outputText value="Nom" />
+															</h:panelGroup>
+														</f:facet>
+														<h:outputText value="#{var.nom}" />
+													</rich:column>
+
+													<rich:column width="40%">
+														<f:facet name="header">
+															<h:panelGroup>
+																<h:outputText value="Email" />
+															</h:panelGroup>
+														</f:facet>
+														<h:outputText value="#{var.email}" />
+													</rich:column>
+
+													<rich:column width="20%">
+														<f:facet name="header">Supprimer</f:facet>
+														<h:graphicImage
+															value="#{viewHelper.sessionSkinURL}/Images/DeleteRed16x.png"
+															title="Supprimer" style="cursor:pointer">
+															<a4j:support event="onclick" reRender="#{clientArea.ID}"
+																ajaxSingle="true" onsubmit="startWaitInStyle();"
+																oncomplete="stoptWaitInStyle();">
+																<f:setPropertyActionListener
+																	target="#{parameterGenDialog.deleUser}" value="#{var}" />
+															</a4j:support>
+														</h:graphicImage>
+													</rich:column>
+
+												</rich:extendedDataTable></td>
+										</tr>
+									</table>
+
+
+								</fieldset>
+
+							</td>
+
+
+						</tr>
+
+					</table>
+
+					<table width="100%" align="center" cellpadding="0" cellspacing="0"
+						border="0">
+						<tr>
+							<td width="100%" align="center"><h:panelGrid columns="5">
+									<rich:spacer width="5px" />
+									<a4j:commandButton value="#{messages['dialog.btnvalider']}"
+										action="#{parameterGenDialog.close}"
+										reRender="#{clientArea.ID}"
+										styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+										onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();" />
+									<rich:spacer width="5px" />
+									<a4j:commandButton value="#{messages['dialog.btnannuler']}"
+										action="#{parameterGenDialog.cancel}"
+										onclick="Richfaces.hideModalPanel('ParameterGenDialog');"
+										styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+										immediate="true" />
+									<rich:spacer width="5px" />
+								</h:panelGrid></td>
+
+						</tr>
+
+					</table>
+
+				</fieldset>
+
+			</fieldset>
+
+
+
+
+		</ui:define>
+
+
+	</dc:ParameterDialogComponent>
+
+	<ui:include src="#{parameterGenDialog.errorDialogDefinition}" />
+	<ui:include src="#{parameterGenDialog.informationDialogDefinition}" />
+	<ui:include src="#{parameterGenDialog.waitDialogDefinition}" />
+
+</f:subview>

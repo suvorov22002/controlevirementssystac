@@ -1,0 +1,240 @@
+<f:subview xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:dc="http://www.afrilandfirstbank.com/Facelets/Taglib/DialogComponent">
+
+	<dc:ParameterDialogComponent id="StatistiquesDialog" width="800"
+		height="500" rendered="#{statistiquesDialog.open}"
+		showWhenRendered="#{statistiquesDialog.open}"
+		titleIcon="#{statistiquesDialog.icon}"
+		title="#{statistiquesDialog.title}"
+		closeIcon="#{viewHelper.sessionSkinURL}/Images/DialogClose.png">
+
+		<ui:define name="closeIconAction">
+			<a4j:support event="onclick" action="#{statistiquesDialog.cancel}"
+				onsubmit="Richfaces.hideModalPanel('StatistiquesDialog');"
+				immediate="true" />
+		</ui:define>
+
+		<ui:define name="defineDialogContent">
+
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Recherche" styleClass="labelStyle" />
+				</legend>
+				<table width="100%" align="center" cellpadding="1" cellspacing="1"
+					border="0">
+
+					<tr>
+
+						<td><h:outputText value="Date Début" maxlength="11"
+								styleClass="labelStyle" /></td>
+						<td><rich:calendar enableManualInput="true"
+								datePattern="dd/MM/yyyy" value="#{statistiquesDialog.dateDebut}"
+								popup="true" timeZone="#{statistiquesDialog.timeZone}"
+								locale="#{clientArea.locale}"
+								styleClass="text ui-widget-content ui-corner-all" /></td>
+
+
+						<td><h:outputText value="Date Fin" maxlength="11"
+								styleClass="labelStyle" /></td>
+						<td><rich:calendar enableManualInput="true"
+								datePattern="dd/MM/yyyy" value="#{statistiquesDialog.dateFin}"
+								popup="true" timeZone="#{statistiquesDialog.timeZone}"
+								locale="#{clientArea.locale}"
+								styleClass="text ui-widget-content ui-corner-all" /></td>
+
+
+						<td><h:outputText value="Heure" styleClass="labelStyle" /></td>
+						<td><h:inputText value="#{statistiquesDialog.heure}"
+								disabled="true"
+								styleClass="text ui-widget-content ui-corner-all" /></td>
+
+
+
+
+
+					</tr>
+
+					<tr>
+
+						<td><h:outputText value="Type de traitement"
+								styleClass="labelStyle" /> <rich:spacer width="3px" /></td>
+						<td><h:selectOneMenu id="typeTrait"
+								value="#{statistiquesDialog.typeTraitement}"
+								styleClass="text ui-widget-content ui-corner-all">
+								<f:selectItems value="#{statistiquesDialog.typeTraitementItems}" />
+							</h:selectOneMenu></td>
+
+
+						<td><h:outputText value="Sort du Traitement"
+								styleClass="labelStyle" /> <rich:spacer width="3px" /></td>
+						<td><h:selectOneMenu id="sortTrait"
+								value="#{statistiquesDialog.sortTraitement}"
+								styleClass="text ui-widget-content ui-corner-all">
+								<f:selectItems value="#{statistiquesDialog.sortTraitementItems}" />
+							</h:selectOneMenu></td>
+
+
+						<td><h:outputText value="Utilisateur" styleClass="labelStyle" />
+						</td>
+						<td><h:inputText value="#{statistiquesDialog.utilisateur}"
+								disabled="true"
+								styleClass="text ui-widget-content ui-corner-all" /></td>
+
+
+						<td>
+							<table>
+								<tr>
+									<td><a4j:commandButton value="Rechercher"
+											action="#{statistiquesDialog.processRecherche}"
+											reRender="#{clientArea.ID}"
+											styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+											onclick="startWaitInStyle();"
+											oncomplete="stoptWaitInStyle();" /></td>
+								</tr>
+							</table>
+
+						</td>
+
+					</tr>
+
+				</table>
+
+			</fieldset>
+
+
+			<fieldset class="fieldSetStyle">
+				<legend>
+					<h:outputText value="Liste" styleClass="labelStyle" />
+				</legend>
+				<h:form id="form">
+					<h:panelGroup>
+						<rich:extendedDataTable var="var" id="table" width="100%"
+							height="350px" sortMode="Single" selectionMode="Single"
+							styleClass="ui-widget ui-widget-content"
+							rowClasses="row-style-impair, row-style-pair"
+							value="#{statistiquesDialog.listTraitementTourCompensations}"
+							cellpadding="0" cellspacing="0" enableContextMenu="true"
+							rendered="true" selection="#{statistiquesDialog.selection}"
+							selectedClass="row-style-selected"
+							noDataLabel="#{messages['table.nodata']}">
+
+							<rich:column width="10%" style="text-align:center;">
+								<f:facet name="header">
+									<h:outputText styleClass="headerText" value="Date Traitement" />
+								</f:facet>
+
+								<h:outputText value="#{var.dateTraitement}"
+									style="font-weight:bold; font-size:12ps;text-align:center;">
+									<f:convertDateTime dateStyle="medium" pattern="dd/MM/yyyy"
+										timeZone="#{statistiquesDialog.timeZone}" />
+								</h:outputText>
+							</rich:column>
+
+							<rich:column width="10%" style="text-align:center;">
+								<f:facet name="header">
+									<h:outputText styleClass="headerText" value="Heure" />
+								</f:facet>
+								<h:outputText value="#{var.heure}"
+									style="font-weight:bold; font-size:12ps;text-align:center;" />
+							</rich:column>
+
+							<rich:column width="10%" style="text-align:center;">
+								<f:facet name="header">
+									<h:outputText styleClass="headerText" value="Utilisateur" />
+								</f:facet>
+								<h:outputText value="#{var.utiTraitement}"
+									style="font-weight:bold; font-size:12ps;text-align:center;" />
+							</rich:column>
+
+							<rich:column width="10%" style="text-align:center;">
+								<f:facet name="header">
+									<h:outputText styleClass="headerText" value="Type Traitement" />
+								</f:facet>
+								<h:outputText value="#{var.typeTraitement}"
+									style="font-weight:bold; font-size:12ps;text-align:center;" />
+							</rich:column>
+
+							<rich:column width="10%" style="text-align:center;">
+								<f:facet name="header">
+									<h:outputText styleClass="headerText" value="Sort Traitement" />
+								</f:facet>
+								<h:outputText value="#{var.sortTraitement}"
+									style="font-weight:bold; font-size:12ps;text-align:center;" />
+							</rich:column>
+
+
+							<rich:column width="40%" style="text-align:center;">
+								<f:facet name="header">
+									<h:outputText styleClass="headerText" value="Fichier Traité" />
+								</f:facet>
+								<h:outputText value="#{var.fichiersTraite}"
+									style="font-weight:bold; font-size:12ps;text-align:center;" />
+							</rich:column>
+
+						</rich:extendedDataTable>
+					</h:panelGroup>
+				</h:form>
+			</fieldset>
+
+			<table width="100%" align="center" cellpadding="0" cellspacing="0"
+				border="0">
+				<tr>
+					<td width="100%" align="right"><h:panelGrid columns="5">
+
+							<a4j:commandButton value="Imprimer"
+								action="#{statistiquesDialog.openReportDoublons}"
+								onclick="startWaitInStyle();" oncomplete="stoptWaitInStyle();"
+								reRender="#{clientArea.ID}"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all" />
+							<rich:spacer width="5px" />
+
+							<a4j:commandButton value="#{messages['dialog.btnannuler']}"
+								action="#{statistiquesDialog.cancel}"
+								onclick="Richfaces.hideModalPanel('StatistiquesDialog');"
+								styleClass="ui-button ui-widget ui-state-default ui-corner-all"
+								immediate="true" />
+							<rich:spacer width="5px" />
+
+
+							<a4j:commandButton rendered="false"
+								image="#{viewHelper.sessionSkinURL}/Images/excel_icon.png"
+								styleClass="commandButtonStyle" style="border:none;height:30;"
+								action="#{statistiquesDialog.openReportViewer}"
+								reRender="#{clientArea.ID}" onclick="startWaitInStyle();"
+								oncomplete="stoptWaitInStyle();Richfaces.showModalPanel('ReportViewer2');"
+								eventsQueue="#{clientArea.requestQueue}" />
+
+						</h:panelGrid></td>
+				</tr>
+			</table>
+
+			<table>
+				<tr>
+					<td><h:outputText value="#{statistiquesDialog.message}"
+							rendered="false" style="color:blue;" /></td>
+					<td><h:outputLink rendered="false"
+							disabled="#{statistiquesDialog.disabled}" id="download"
+							value="#{viewHelper.reportsURL}/statistiques_taux_de_conformite.xlsx">
+							<h:outputText
+								value="Telechargez statistiques de taux de conformité ICI"
+								style="color:blue;" />
+						</h:outputLink></td>
+				</tr>
+			</table>
+
+		</ui:define>
+
+
+	</dc:ParameterDialogComponent>
+
+	<ui:include src="#{statistiquesDialog.errorDialogDefinition}" />
+	<ui:include src="#{statistiquesDialog.informationDialogDefinition}" />
+	<ui:include src="#{statistiquesDialog.waitDialogDefinition}" />
+	<ui:include src="#{statistiquesDialog.reportViewer.fileDefinition}" />
+
+</f:subview>

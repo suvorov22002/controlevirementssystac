@@ -2,38 +2,24 @@ package com.afb.portal.presentation.virementsRec;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.faces.event.ActionEvent;
-import javax.faces.model.SelectItem;
 
 import org.apache.commons.io.FilenameUtils;
-import org.hibernate.criterion.Restrictions;
-import org.richfaces.model.selection.Selection;
-
-import afb.dsi.dpd.portal.jpa.entities.User;
 
 import com.afb.portal.presentation.models.AbstractDialog;
 import com.afb.portal.presentation.models.reportViewer.ReportViewer;
@@ -50,7 +36,8 @@ import com.afb.virementsRec.jpa.datamodel.TraitementTourCompensation;
 import com.afb.virementsRec.jpa.datamodel.TypeRejet;
 import com.afb.virementsRec.jpa.datamodel.TypeTraitement;
 import com.ibm.icu.text.SimpleDateFormat;
-import com.yashiro.persistence.utils.dao.tools.RestrictionsContainer;
+
+import afb.dsi.dpd.portal.jpa.entities.User;
 
 
 
@@ -400,6 +387,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 					toTraite = true;
 
 					TraitementImpots traitementImpots = new TraitementImpots();
+					
 					traitementImpots.setUtiPortal(user.getLogin());
 
 					//Récupération des valeurs paramétrés dans le module (param généraux pour SYSTAC et SYGMA)
@@ -522,7 +510,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 							traitementImpots.setDomi(recupCompteImpots.get(3));
 						}else{
 							//RIB BENEFICIAIRE INCORRECT
-							if(parametragesImpots.getMotifsDeRejet()!=null&&!parametragesImpots.getMotifsDeRejet().isEmpty()){
+							if(parametragesImpots.getMotifsDeRejet()!=null && !parametragesImpots.getMotifsDeRejet().isEmpty()){
 								for(MotifsDeRejet m: parametragesImpots.getMotifsDeRejet()){
 									if(m.getTypeRejet().equals(TypeRejet.RIB_BENEFICIAIRE_INCORRECT)){
 										motifDeRejet = m.getTypeRejet();
@@ -540,15 +528,15 @@ public class TraitementImpotsDialog extends AbstractDialog{
 						String desa1 = "";
 						Double mon1=0d;
 						if(isSystac){
-							if(mht1>parametragesImpots.getMontantPlafondSystac()){  //5000000
+							if(mht1 > parametragesImpots.getMontantPlafondSystac()){  //5000000
 								eta = "AT"; //FO
 								desa1 = "PLAF";
 							}else{
 								eta = "VA";
 							}
 							
-							if(mht1>=parametragesImpots.getMontantMaxSYSTAC()){ //Rejet pour montant supérieur ou égale à 100 M
-								if(parametragesImpots.getMotifsDeRejet()!=null&&!parametragesImpots.getMotifsDeRejet().isEmpty()){
+							if(mht1 >= parametragesImpots.getMontantMaxSYSTAC()){ //Rejet pour montant supérieur ou égale à 100 M
+								if(parametragesImpots.getMotifsDeRejet()!=null && !parametragesImpots.getMotifsDeRejet().isEmpty()){
 									for(MotifsDeRejet m: parametragesImpots.getMotifsDeRejet()){
 										if(m.getTypeRejet().equals(TypeRejet.OPPOSITION_DEBIT)){
 											motifDeRejet = m.getTypeRejet();
@@ -775,7 +763,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 											if(listDesaccords!=null && !listDesaccords.isEmpty()){
 												System.out.println("/*******INSERTION DES DESACCORDS **************/");
 												int c=0;
-												while(c<listDesaccords.size()){
+												while(c < listDesaccords.size()){
 													if(c==0){
 														if(traitementImpots.getDesa1().trim().isEmpty())
 															traitementImpots.setDesa1(listDesaccords.get(0)); //desa1
@@ -808,24 +796,6 @@ public class TraitementImpotsDialog extends AbstractDialog{
 													c++;
 												}
 											}
-
-											//if(listDesaccords.contains(parametragesImpots.getLibelleDesaccordDebit().trim())){
-
-											/**if(!listDesaccords.isEmpty()){
-												System.out.println("/**********REJET POUR DESACCORDS ******************");  //OPPOSITION DEBIT 
-												if(parametragesImpots.getMotifsDeRejet()!=null&&!parametragesImpots.getMotifsDeRejet().isEmpty()){
-													for(MotifsDeRejet m: parametragesImpots.getMotifsDeRejet()){
-														if(m.getTypeRejet().equals(TypeRejet.DESACCORDS_SUR_COMPTE_OU_CLIENT)){
-															motifDeRejet = m.getTypeRejet();
-														}
-													}
-												}
-												/**********REJET POUR DESACCORDS OPPOSITION DEBIT****************
-												//Construction du fichier de Rejet
-												Rejet rejet = new Rejet(traitementImpots.getLib3(), traitementImpots.getLib2(), traitementImpots.getNcp1(), traitementImpots.getMht1(), traitementImpots.getLib1(), new SimpleDateFormat("dd/MM/yyyy").parse(new SimpleDateFormat("dd/MM/yyyy").format(new Date())), new SimpleDateFormat("HH:mm:ss").format(new Date()), motifDeRejet, motifDeRejet.value(), new SimpleDateFormat("dd/MM/yyyy").parse(new SimpleDateFormat("dd/MM/yyyy").format(new Date())));
-												listRejet.add(rejet);
-												toTraite=false;
-											}*/
 
 										}
 									}

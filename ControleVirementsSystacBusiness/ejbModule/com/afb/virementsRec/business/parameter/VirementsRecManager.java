@@ -51,14 +51,19 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -105,7 +110,16 @@ import com.afb.virementsRec.jpa.datamodel.TraitementTourCompensation;
 import com.afb.virementsRec.jpa.datamodel.TypeProcess;
 import com.afb.virementsRec.jpa.datamodel.TypeTraitement;
 import com.afb.virementsRec.jpa.datamodel.ValidateDoublonsInFichier;
+import com.afb.virementsRec.jpa.dto.Account;
+import com.afb.virementsRec.jpa.dto.Bkevec;
+import com.afb.virementsRec.jpa.dto.Bkrtgseve;
+import com.afb.virementsRec.jpa.dto.Client;
+import com.afb.virementsRec.jpa.dto.ResponseDataAccount;
+import com.afb.virementsRec.jpa.dto.ResponseDataClient;
 import com.afb.virementsRec.jpa.dto.Shared;
+import com.afb.virementsRec.jpa.dto.StoppageAccount;
+import com.afb.virementsRec.jpa.dto.bkeve;
+import com.afb.virementsRec.jpa.tools.DateUtil;
 import com.afb.virementsRec.jpa.tools.HelperQuerry;
 import com.ibm.icu.text.SimpleDateFormat;
 import com.yashiro.persistence.utils.annotations.AllowedRole;
@@ -5436,42 +5450,42 @@ public class VirementsRecManager implements IVirementsRecManager {
 			String nomrest="";
 			String ges="";
 			String dva1S="";
-
-			String testNcpExist = "select * from bkcom a where a.ncp = '"+ncp+"' "; //compte existant et ouvert  //and a.cfe='N' and a.ife='N'
-			st = conDELTA.createStatement();
-			rs = st.executeQuery(testNcpExist);
-
+			
+			//String testNcpExist = "select * from bkcom a where a.ncp = '"+ncp+"' "; //compte existant et ouvert  //and a.cfe='N' and a.ife='N'
+		    
+            Account compte = getInfosDuCompte(age + "-" + ncp + "-" + clc);
+			
 			boolean found = false;
-			if(rs.next()){
-				String cfe = (rs.getString("cfe")!=null)?rs.getString("cfe").trim(): " ";
-				String ife = (rs.getString("ife")!=null)?rs.getString("ife").trim(): " ";
-
-				if(!cfe.equals("N") || !ife.equals("N")){
+			
+			if(compte != null){
+				
+				if(!compte.isCfe() || !compte.isIfe()){
 					list.add("COMPTE FERME OU EN INSTANCE DE FERMETURE");
 					return list;
 				}else{
 					found = true;
-					if(rs!=null)rs.close();
 				}
+				
 			}
-			if(found==false){
+			
+			if(found == false){
 				list.add("NCP NOT FOUND");
 				return list;
 			}
 
 			//S'assurer que le user traitant dans Portal a le même code user que dans Amplitude en récupérant ce dernier
-			String sql = "select cuti from evuti where cuti = '"+uti+"'";
+			//String sql = "select cuti from evuti where cuti = '"+uti+"'";
+			boolean isUser = isUserDelta(uti);
 
-			rs = st.executeQuery(sql);
+			//rs = st.executeQuery(sql);
 
-			if(rs.next()){
-				utiCB = (rs.getString("cuti")!=null)?rs.getString("cuti").trim(): " ";
-			}
+			utiCB = isUser ? uti : " ";
+			
 			//if(uti.trim().equals(utiCB.trim()))
 			list.add(utiCB);
 			//else
 			//utiCB="";
-			if(rs!=null)rs.close();
+			//if(rs!=null)rs.close();
 
 			//Récupérer le solde indicatif du compte du client incluant le découvert
 			/******MAC******sql = "select a.sin-nvl(a.minds,0)+nvl(maut,0) as solde,cha from bkcom a left join bkautc b on a.age=b.age and a.dev=b.dev and a.ncp=b.ncp and eta in ('VA','VF','FO') and "
@@ -5496,100 +5510,105 @@ public class VirementsRecManager implements IVirementsRecManager {
 			}*/
 
 
-			sql =  "select a.age,a.dev,a.ncp,a.clc,a.sin-nvl(a.minds,0)+nvl(maut,0) as solde " +  // //--2456
-					" from bkcom a left join (select * from bkautc where eta in ('VA','VF','FO') and today between debut and fin) b on a.age=b.age and a.dev=b.dev and a.ncp=b.ncp " +
-					" and eta in ('VA','VF','FO') and today between b.debut and b.fin " +
-					" where a.cfe='N' and a.ife='N' and a.age= '"+age+"' and a.clc= '"+clc+"' and a.ncp= '"+ncp+"' and a.dev= '"+dev+"';";
-			rs = st.executeQuery(sql);
+//			sql =  "select a.age,a.dev,a.ncp,a.clc,a.sin-nvl(a.minds,0)+nvl(maut,0) as solde " +  // //--2456
+//					" from bkcom a left join (select * from bkautc where eta in ('VA','VF','FO') and today between debut and fin) b on a.age=b.age and a.dev=b.dev and a.ncp=b.ncp " +
+//					" and eta in ('VA','VF','FO') and today between b.debut and b.fin " +
+//					" where a.cfe='N' and a.ife='N' and a.age= '"+age+"' and a.clc= '"+clc+"' and a.ncp= '"+ncp+"' and a.dev= '"+dev+"';";
+//			rs = st.executeQuery(sql);
 
-			while(rs.next()){
-				solde = (rs.getDouble("solde")!=0.0)?rs.getDouble("solde"): 0.0; //sin
-				System.out.println("********SOLDE*****" + solde);
-			}
+			
+			solde = compte != null ? compte.getSin() : 0.0; //sin
+			System.out.println("********SOLDE*****" + solde);
+			
 			list.add(String.valueOf(solde));
-			if(rs!=null)rs.close();
+			
+			//if(rs!=null)rs.close();
 
 			//Récupérer le nom du client et le code de son gestionnaire
-			sql = "select distinct a.cli, a.nomrest, N2.lib1, a.ges from  bkcli a, bkcom b, " +
-					"outer bknom N2 where a.cli = b.cli and b.cfe='N' and b.ife='N' and N2.ctab = '035' and N2.cacc = a.ges and a.cli = '"+cli+"'";
-			rs = st.executeQuery(sql);
+//			sql = "select distinct a.cli, a.nomrest, N2.lib1, a.ges from  bkcli a, bkcom b, " +
+//					"outer bknom N2 where a.cli = b.cli and b.cfe='N' and b.ife='N' and N2.ctab = '035' and N2.cacc = a.ges and a.cli = '"+cli+"'";
+//			rs = st.executeQuery(sql);
+			
+			Client client = customerInfos(cli);
 
-			while(rs.next()){
-				nomrest = (rs.getString("nomrest")!=null)?rs.getString("nomrest").trim(): " ";
-				ges = (rs.getString("ges")!=null)?rs.getString("ges").trim(): " ";
-			}
+		    nomrest = client != null ? client.getCustomerName() : " ";
+		    ges = client != null ? client.getCodeGes() : " ";
+			
 			list.add(nomrest);
 			list.add(ges);
-			if(rs!=null)rs.close();
-
+			
 			//Récupérer la date de valeur du compte 1 et s'assurer que ce n'est ni un jour du weekend ni un jour férier
 
 			//boolean koFerier = false;
 			//boolean koWeekend = false;
 			//while(!koFerier || !koWeekend){
-
+            
+			
 			System.out.println("****in while(!koFerier || !koWeekend) ");
-
-			Date dva1; //= dsai;
-			/*****WEEKEND****/
-			Calendar cal = Calendar.getInstance();
-			if(dsai!=null)cal.setTime(dsai);
-
-			System.out.println("****Weekend****** ");
-			if((cal.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY)){
-				dva1 = DateUtils.addDays(dsai, -1);
-				cal.setTime(dva1);
-			}else if(cal.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY){
-				dva1 = DateUtils.addDays(dsai, -2);
-				cal.setTime(dva1);
-			}else if(cal.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY){
-				dva1 = DateUtils.addDays(dsai, -3);
-				cal.setTime(dva1);
-			}else{
-				dva1 = DateUtils.addDays(dsai, -1);
-				cal.setTime(dva1);
-			}
-			if(dva1!=null)dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
-
-
-			/***FERIER****/
-			System.out.println("****Ferriers****");
-			sql = "select jourfer from bkfer ";  //where jourfer = '"+dva1S+"'";
-			rs = st.executeQuery(sql);
-			Date dva;
-			List<String> listDFer = new ArrayList<String>();
-			while(rs.next()){ // si ce le j-i est férier
-				dva =  (rs.getDate("jourfer")!=null)?rs.getDate("jourfer"): null;
-				//i++;
-				dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva);
-				listDFer.add(dva1S);
-			}
-
-			dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
-			while(listDFer.contains(dva1S)){
-				Calendar cal2 = Calendar.getInstance();
-				if(dva1!=null)cal2.setTime(dva1);
-				if(cal2.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY){
-					dva1 = DateUtils.addDays(dva1, -3);
-					dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
-				}else{
-					dva1 = DateUtils.addDays(dva1, -1);
-					dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
-				}
-				//dva1 = DateUtils.addDays(dva1, -i);
-				//dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
-			}
-			//if(dva1!=null)dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
-			//}
-
-			//}
+			String ssDco = DateUtil.format(dsai, DateUtil.DATE_MINUS_FORMAT_SINGLE);
+			Date ddva1S = getDvaDebit(ssDco, ncp.substring(7, 10));
+			dva1S = new SimpleDateFormat("yyyy-MM-dd").format(ddva1S);
+			
+//			Date dva1; //= dsai;
+//			/*****WEEKEND****/
+//			Calendar cal = Calendar.getInstance();
+//			if(dsai!=null)cal.setTime(dsai);
+//
+//			System.out.println("****Weekend****** ");
+//			if((cal.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY)){
+//				dva1 = DateUtils.addDays(dsai, -1);
+//				cal.setTime(dva1);
+//			}else if(cal.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY){
+//				dva1 = DateUtils.addDays(dsai, -2);
+//				cal.setTime(dva1);
+//			}else if(cal.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY){
+//				dva1 = DateUtils.addDays(dsai, -3);
+//				cal.setTime(dva1);
+//			}else{
+//				dva1 = DateUtils.addDays(dsai, -1);
+//				cal.setTime(dva1);
+//			}
+//			if(dva1!=null) dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
+//
+//
+//			/***FERIER****/
+//			System.out.println("****Ferriers****");
+//			sql = "select jourfer from bkfer ";  //where jourfer = '"+dva1S+"'";
+//			rs = st.executeQuery(sql);
+//			Date dva;
+//			List<String> listDFer = new ArrayList<String>();
+//			while(rs.next()){ // si ce le j-i est férier
+//				dva =  (rs.getDate("jourfer")!=null)?rs.getDate("jourfer"): null;
+//				//i++;
+//				dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva);
+//				listDFer.add(dva1S);
+//			}
+//
+//			dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
+//			while(listDFer.contains(dva1S)){
+//				Calendar cal2 = Calendar.getInstance();
+//				if(dva1!=null)cal2.setTime(dva1);
+//				if(cal2.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY){
+//					dva1 = DateUtils.addDays(dva1, -3);
+//					dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
+//				}else{
+//					dva1 = DateUtils.addDays(dva1, -1);
+//					dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
+//				}
+//				//dva1 = DateUtils.addDays(dva1, -i);
+//				//dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
+//			}
+//			//if(dva1!=null)dva1S = new SimpleDateFormat("yyyy-MM-dd").format(dva1);
+//			//}
+//
+//			//}
 
 			list.add(dva1S);
 
-			if(rs!=null)rs.close();
-
-			if(st!=null)
-				st.close();
+//			if(rs!=null)rs.close();
+//
+//			if(st!=null)
+//				st.close();
 
 		}catch(Exception e){
 			e.printStackTrace();
@@ -5616,58 +5635,34 @@ public class VirementsRecManager implements IVirementsRecManager {
 
 		List<String> list = new ArrayList<String>();
 
-		openDELTAConnection();
-
-		if(conDELTA==null){System.err.println("----ConDelta est vide----");return null;}
-
 		try{
-
-			Statement st = null;
-			ResultSet rs = null;
-
-			String desaccord = "";
-
-			/********LISTE DES DESACCRODS*************/
-			String sql =  "select a.age,a.ncp,a.dev,a.opp code_opp,b.lib1 libe_desa,lib2 desa,a.dou,a.ddeb,a.dfin,a.eta,a.uti,motifo " +
-					" from bkoppcom a,bknom b "+
-					"where b.ctab='070' and b.cacc=a.opp and a.eta='V' and dfin>=today and a.ncp='"+ncp+"'  "  +           // ----and a.ncp='00060671051' 
-					"union "+
-					"select ' ',a.cli,' ',a.opp code_opp,b.lib1 libe_desa,lib2 desa,a.dou,a.ddeb,a.dfin,a.eta,a.uti,motifo " +
-					"from bkoppcli a,bknom b "+
-					"where b.ctab='070' and b.cacc=a.opp and a.eta='V' and dfin>=today and a.cli = '"+cli+"' ";            // -----and a.cli='0000031' 
-
-			st = conDELTA.createStatement();
-			rs = st.executeQuery(sql);
-
-			while(rs.next()){
-
-				desaccord = (rs.getString("desa")!=null)?rs.getString("desa").trim(): " ";
-
-				//desaccord = (rs.getString("libe_desa")!=null)?rs.getString("libe_desa").trim(): " ";
-				list.add(desaccord);
-
+			Account account = getInfosDuCompte(age + "-" + ncp);
+			
+			List<StoppageAccount> listStoppages;
+			
+			
+			if(account != null) {
+				String desaccord = "";
+				listStoppages = account.getStoppages();
+				
+				if(listStoppages != null) {
+					for (StoppageAccount sto : listStoppages) {
+						
+						if("V".equals(sto.getStatus()) && (sto.getDesignation().startsWith("DESSA") || sto.getDesignation().startsWith("DESA"))) {
+							
+							desaccord = sto.getDesignation();
+							list.add(desaccord);
+							
+						}
+						
+					}
+				}
+				
 			}
-
-			if(rs!=null)rs.close();
-
-			if(st!=null)
-				st.close();
-
-
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		finally
-		{
-			try {
-
-				closeDELTAConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
 
 		return list;
 
@@ -5677,9 +5672,10 @@ public class VirementsRecManager implements IVirementsRecManager {
 	@Override
 	public List<String> recuperationsOppositionDebit(String age, String cli, String ncp){
 
-		System.err.println("----In recuperationsValCB----");
-
-		List<String> list = new ArrayList<String>();
+		 System.err.println("----In recuperationsValCB----");
+	     Account compte = getInfosDuCompte(age + "-" + ncp);
+		
+	     List<String> list = new ArrayList<String>();
 
 		openDELTAConnection();
 
@@ -5687,43 +5683,48 @@ public class VirementsRecManager implements IVirementsRecManager {
 
 		try{
 
-			Statement st = null;
-			ResultSet rs = null;
-
-			//String desaccord = "";
-			String oppRequete = "";
-
-			/********LISTE DES DESACCRODS*************/
-			/**String sql =  "select a.age,a.ncp,a.dev,a.opp code_opp,b.lib1 libe_desa,lib2 desa,a.dou,a.ddeb,a.dfin,a.eta,a.uti,motifo " +
-					" from bkoppcom a,bknom b "+
-					"where b.ctab='070' and b.cacc=a.opp and a.eta='V'  and a.ncp='"+ncp+"'  "  +           // ----and a.ncp='00060671051' 
-					"union "+
-					"select ' ',a.cli,' ',a.opp code_opp,b.lib1 libe_desa,lib2 desa,a.dou,a.ddeb,a.dfin,a.eta,a.uti,motifo " +
-					"from bkoppcli a,bknom b "+
-					"where b.ctab='070' and b.cacc=a.opp and a.eta='V'  and a.cli = '"+cli+"' ";    */             // -----and a.cli='0000031' 
-			String dateOfToday = new SimpleDateFormat("yyyy-MM-dd").format(new Date());  //valeur par défaut
-
-			String sql = "select opp from bkoppcom where age = '"+age+"' and ncp='"+ncp+"' and eta='V' and (dfin is null or dfin>='"+dateOfToday+"')"; //opposition finissant après aujourd'hui
-
-			st = conDELTA.createStatement();
-			rs = st.executeQuery(sql);
-
-			while(rs.next()){
-
-				oppRequete = (rs.getString("opp")!=null)?rs.getString("opp").trim(): " ";  //code opposition
-				//desaccord = (rs.getString("desa")!=null)?rs.getString("desa").trim(): " "; 
-
-				///desaccord = (rs.getString("libe_desa")!=null)?rs.getString("libe_desa").trim(): " ";
-				///list.add(desaccord);
-				if(oppRequete.equals("01")){
-					list.add(oppRequete);
-				}
+//			Statement st = null;
+//			ResultSet rs = null;
+//
+//			//String desaccord = "";
+//			String oppRequete = "";
+//
+//			/********LISTE DES DESACCRODS*************/
+//			/**String sql =  "select a.age,a.ncp,a.dev,a.opp code_opp,b.lib1 libe_desa,lib2 desa,a.dou,a.ddeb,a.dfin,a.eta,a.uti,motifo " +
+//					" from bkoppcom a,bknom b "+
+//					"where b.ctab='070' and b.cacc=a.opp and a.eta='V'  and a.ncp='"+ncp+"'  "  +           // ----and a.ncp='00060671051' 
+//					"union "+
+//					"select ' ',a.cli,' ',a.opp code_opp,b.lib1 libe_desa,lib2 desa,a.dou,a.ddeb,a.dfin,a.eta,a.uti,motifo " +
+//					"from bkoppcli a,bknom b "+
+//					"where b.ctab='070' and b.cacc=a.opp and a.eta='V'  and a.cli = '"+cli+"' ";    */             // -----and a.cli='0000031' 
+//			String dateOfToday = new SimpleDateFormat("yyyy-MM-dd").format(new Date());  //valeur par défaut
+//
+//			String sql = "select opp from bkoppcom where age = '"+age+"' and ncp='"+ncp+"' and eta='V' and (dfin is null or dfin>='"+dateOfToday+"')"; //opposition finissant après aujourd'hui
+//			
+			
+			if(isCompteEnOpposition(compte, "01")) {
+				list.add("01");
 			}
-
-			if(rs!=null)rs.close();
-
-			if(st!=null)
-				st.close();
+			
+//			st = conDELTA.createStatement();
+//			rs = st.executeQuery(sql);
+//
+//			while(rs.next()){
+//
+//				oppRequete = (rs.getString("opp")!=null)?rs.getString("opp").trim(): " ";  //code opposition
+//				//desaccord = (rs.getString("desa")!=null)?rs.getString("desa").trim(): " "; 
+//
+//				///desaccord = (rs.getString("libe_desa")!=null)?rs.getString("libe_desa").trim(): " ";
+//				///list.add(desaccord);
+//				if(oppRequete.equals("01")){
+//					list.add(oppRequete);
+//				}
+//			}
+//
+//			if(rs!=null)rs.close();
+//
+//			if(st!=null)
+//				st.close();
 
 
 		}catch(Exception e){
@@ -5749,123 +5750,74 @@ public class VirementsRecManager implements IVirementsRecManager {
 
 	public void insertIntoBkeve(List<TraitementImpots> listTraitementImpots){
 
-		openDELTAConnection();
-
-		if(conDELTA==null){System.err.println("----ConDelta est vide----");return;}
-
 		try{
 
-			DataSystem dsCBS = findDataSystem("DELTA-V10");
-
-			Statement st = null;
-			//Statement st2 = null;
-
-
-			st=conDELTA.createStatement();
-			st.executeUpdate("SET ISOLATION TO DIRTY READ");
+			bkeve eve = null;
 
 			for(TraitementImpots t: listTraitementImpots){
 
-				/**	String sql = "INSERT INTO BKEVE (AGSA, AGE,   OPE, EVE, TYP,   NDOS, AGE1, DEV1,   NCP1, SUF1, CLC1, CLI1, NOM1, GES1, SEN1, MHT1, MON1, " + 
-						"DVA1, EXO1, SOL1, INDH1, INDS1, DESA1, DESA2, DESA3, DESA4, DESA5, AGE2, DEV2, NCP2, SUF2, CLC2, CLI2, NOM2, GES2,SEN2, MHT2, MON2, " +
-						"DVA2, DIN, EXO2, SOL2, INDH2, INDS2, DESC1, DESC2, DESC3, DESC4, DESC5, ETAB, GUIB, NOME, DOMI, ADB1, ADB2, ADB3, VILB, CPOB, CPAY, " +
-						"ETABR, GUIBR, COMB, CLEB, NOMB, MBAN, DVAB, CAI1, TYC1, DCAI1, SCAI1, MCAI1, ARRC1, CAI2, TYC2, DCAI2, SCAI2, MCAI2, ARRC2, DEV, MHT, " +
-						"MNAT, MBOR, NBOR, NBLIG, TCAI2, TCAI3, NAT, NATO, OPEO, EVEO, PIEO, DOU, DCO, ETA, ETAP, NBV, NVAL, UTI, UTF, UTA, MOA, MOF, LIB1, LIB2, " +
-						"LIB3, LIB4, LIB5, LIB6, LIB7, LIB8, LIB9, LIB10, AGEC, AGEP, INTR, ORIG, RLET, CATR, CEB, PLB, CCO, DRET, NATP, NUMP, DATP, NOMP, AD1P, AD2P, " +
-						"DELP, SERIE, NCHE, CHQL, CHQC, CAB, NCFF, CSA, DECH, TIRE, AGTI, AGRE, NBJI, PTFC, EFAV, NAVL, EDOM, EOPP, EFAC, MOTI, ENVACC, ENOM, VICL, TECO, " +
-						"TENV, EXJO, ORG, CAI3, MCAI3, FORC, OCAI3, NCAI3, CSP1, CSP2, CSP3, CSP4, CSP5, NDOM, CMOD, DEVF, NCPF, SUFF, MONF, DVAF, EXOF, AGEE, DEVE, NCPE, " +
-						"SUFE, CLCE, NCPI, SUFI, MIMP, DVAI, NCPP, SUFP, PRGA, MRGA, TERM, TVAR, INTP, CAP, PRLL, ANO, ETAB1, GUIB1, COM1B, ETAB2, GUIB2, COM2B, TCOM1, MCOM1," + 
-						"TCOM2, MCOM2, TCOM3, MCOM3, FRAI1, FRAI2, FRAI3, TTAX1, MTAX1, TTAX2, MTAX2, TTAX3, MTAX3, MNT1, MNT2, MNT3, MNT4, MNT5, TYC3, DCAI3, SCAI3," + 
-						"ARRC3, MHTD, TCAI4, TOPE, IMG, DSAI, HSAI, PAYSP, PDELP, MANDA, REFDOS, TCHFR, NIDNP, FRAISDIFF1, FRAISDIFF2)" +
-						"VALUES ('"+t.getAgsa()+"',  '"+t.getAge()+"', '"+t.getOpe()+"',  '"+t.getEve()+"',  '"+t.getTyp()+"', '"+t.getNdos()+"',  '"+t.getAge1()+"',  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?," + 
-						"?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, " +
-						"?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, " +
-						"?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?," + 
-						"?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?," + 
-						"?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?, ?, ?, ?, ?)";
-
-
-				/*st2 = conDELTA.prepareStatement(sql);
-				Object[] values =getQueryValues(agsa, age, ope, eve, typ, ndos, age1, dev1, ncp1, suf1, clc1, cli1, nom1, ges1, sen1, mht1, mon1, dva1, exo1, sol1, indh1, inds1, desa1, desa2, desa3, desa4, desa5, age2, dev2, ncp2, suf2, clc2, cli2, nom2, ges2, sen2, mht2, mon2, dva2, din, exo2, sol2, indh2, inds2, desc1, desc2, desc3, desc4, desc5, etab, guib, nome, domi, adb1, adb2, adb3, vilb, cpob, cpay, etabr, guibr, comb, cleb, nomb, mban, dvab, cai1, tyc1, dcai1, scai1, mcai1, arrc1, cai2, tyc2, dcai2, scai2, mcai2, arrc2, dev, mht, mnat, mbor, nbor, nblig, tcai2, tcai3, nat, nato, opeo, eveo, pieo, dou, dco, eta, etap, nbv, nval, uti, utf, uta, moa, mof, lib1, lib2, lib3, lib4, lib5, lib6, lib7, lib8, lib9, lib10, agec, agep, intr, orig, rlet, catr, ceb, plb, cco, dret, natp, nump, datp, nomp, ad1p, ad2p, delp, serie, nche, chql, chqc, cab, ncff, csa, cfra, neff, teff, dech, tire, agti, agre, nbji, ptfc, efav, navl, edom, eopp, efac, moti, envacc, enom, vicl, teco, tenv, exjo, org, cai3, mcai3, forc, ocai3, ncai3, csp1, csp2, csp3, csp4, csp5, ndom, cmod, devf, ncpf, suff, monf, dvaf, exof, agee, deve, ncpe, sufe, clce, ncpi, sufi, mimp, dvai, ncpp, sufp, prga, mrga, term, tvar, intp, cap, prll, ano, etab1, guib1, com1b, etab2, guib2, com2b, tcom1, mcom1, tcom2, mcom2, tcom3, mcom3, frai1, frai2, frai3, ttax1, mtax1, ttax2, mtax2, ttax3, mtax3, mnt1, mnt2, mnt3, mnt4, mnt5, tyc3, dcai3, scai3, arrc3, mhtd, tcai4, tope, img, dsai, hsai, paysp, pdelp, manda, refdos, tchfr, nidnp, fraisdiff1, fraisdiff2);
-
-				st.executeUpdate(sql);*/
-
+				eve = new bkeve();
+				PropertyUtils.copyProperties(eve, t);
+				
+				eve = registerEventToCoreBanking(eve);
+				
+				logger.info("Eve log OPE: " + eve.getOpe());
 
 				// Enregistrement de l'evenement dans Amplitude
-				executeUpdateSystemQuery(dsCBS, t.getSaveQuery(), t.getQueryValues());
+//				executeUpdateSystemQuery(dsCBS, t.getSaveQuery(), t.getQueryValues());
 
 				// MAJ du solde indicatif du compte debiteur
-				executeUpdateSystemQuery(dsCBS, HelperQuerry.getDefaultCBSQueries().get(4).getQuery(), new Object[]{ t.getMon1(), t.getAge(), t.getNcp1(), t.getClc1() } );
-
-				// MAJ du solde indicatif crediteur
-				///executeUpdateSystemQuery(dsCBS, HelperQuerry.getDefaultCBSQueries().get(5).getQuery(), new Object[]{t.getMht2(), t.getAge2(), eve.getNcp2(), eve.getClc2()  });
-
+//				executeUpdateSystemQuery(dsCBS, HelperQuerry.getDefaultCBSQueries().get(4).getQuery(), new Object[]{ t.getMon1(), t.getAge(), t.getNcp1(), t.getClc1() } );
 
 				// MAJ du dernier numero d'evenement utilise pour le type operation
-				executeUpdateSystemQuery(dsCBS, HelperQuerry.getDefaultCBSQueries().get(3).getQuery(), new Object[]{ Long.valueOf(t.getEve()), t.getOpe() });
+//				executeUpdateSystemQuery(dsCBS, HelperQuerry.getDefaultCBSQueries().get(3).getQuery(), new Object[]{ Long.valueOf(t.getEve()), t.getOpe() });
 				System.out.println("****Eve Num****" + t.getEve());
-
-				t.setValide(Boolean.TRUE);
-
-				//t.setEve(eve);
-
-				System.out.println("*****INSERTION DANS BKEVE REUSSIE*****");
-
+				
+				if (eve != null) {
+					t.setValide(Boolean.TRUE);
+				}
+					
 			}
 
 			for(TraitementImpots t: listTraitementImpots){
 				ManagerDAO.update(t);
 			}
 
-			if(st!=null)
-				st.close();
-
 		}
 		catch(Exception e){
 			e.printStackTrace();
 		}
-		finally
-		{
-			try {
-
-				closeDELTAConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
 	}
 
 
 	public void insertIntoBkeveC(List<TraitementImpots> listTraitementImpots, ParametragesImpots parametragesImpots){
 
-		openDELTAConnection();
-
-		if(conDELTA==null){System.err.println("----ConDelta est vide----");return;}
-
+		
 		try{
 
-			DataSystem dsCBS = findDataSystem("DELTA-V10");
-
-			Statement st = null;
-			//Statement st2 = null;
-			st=conDELTA.createStatement();
-			st.executeUpdate("SET ISOLATION TO DIRTY READ");
-
-			String sql = "";
+			
+			Bkevec bkevec;
+			
 			for(TraitementImpots t: listTraitementImpots){
 
 				System.out.println("***insertIntoBkeveC t.getEve()****" + t.getEve());
+				
+//				sql = "insert into bkevec values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'COMVRT', 'COM01', 'D', '001', '0,0', '1,0', '0,0', '0,0', '0,0', 'O', '0,0') ";
+//				st.executeUpdate(sql);
+				bkevec = mapBkevec(t.getAge(), t.getOpe(), t.getEve(), "COMVRT", "COM01", "D", "001", "0,0", "1,0", "0,0", "0,0", "0,0", "O", "0,0");
+				updateBkevec(bkevec);
+				
+//				sql = "insert into bkevec values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'PRLVRT', 'PRL01', 'B', '001', '0,0', '1,0', '0,0', '0,0', '0,0', 'P', '0,0') ";
+//				st.executeUpdate(sql);
+				bkevec = mapBkevec(t.getAge(), t.getOpe(), t.getEve(), "PRLVRT", "PRL01", "B", "001", "0,0", "1,0", "0,0", "0,0", "0,0", "P", "0,0");
+				updateBkevec(bkevec);
 
-				sql = "insert into bkevec values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'COMVRT', 'COM01', 'D', '001', '0,0', '1,0', '0,0', '0,0', '0,0', 'O', '0,0') ";
-				st.executeUpdate(sql);
-
-				sql = "insert into bkevec values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'PRLVRT', 'PRL01', 'B', '001', '0,0', '1,0', '0,0', '0,0', '0,0', 'P', '0,0') ";
-				st.executeUpdate(sql);
-
-				sql = "insert into bkevec values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'FRAVRT', 'FRA01', 'D', '001', '"+parametragesImpots.getMontantFraisSYGMA()+"', '1,0', '"+parametragesImpots.getMontantFraisSYGMA()+"', '"+parametragesImpots.getMontantFraisSYGMA()+"', '"+parametragesImpots.getMontantFraisSYGMA()+"', 'O', '0,0') ";
-				st.executeUpdate(sql);
+//				sql = "insert into bkevec values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'FRAVRT', 'FRA01', 'D', '001', '"+parametragesImpots.getMontantFraisSYGMA()+"', '1,0', '"+parametragesImpots.getMontantFraisSYGMA()+"', '"+parametragesImpots.getMontantFraisSYGMA()+"', '"+parametragesImpots.getMontantFraisSYGMA()+"', 'O', '0,0') ";
+//				st.executeUpdate(sql);
+				bkevec = mapBkevec(t.getAge(), t.getOpe(), t.getEve(), "FRAVRT", "FRA01", "D", "001", String.valueOf(parametragesImpots.getMontantFraisSYGMA()), "1,0", 
+						String.valueOf(parametragesImpots.getMontantFraisSYGMA()), String.valueOf(parametragesImpots.getMontantFraisSYGMA()), 
+							String.valueOf(parametragesImpots.getMontantFraisSYGMA()), "P", "0,0");
+				updateBkevec(bkevec);
 
 				Double montantTaxSyg = parametragesImpots.getMontantFraisSYGMA()*parametragesImpots.getTauxTax();
 				Double tva = parametragesImpots.getTauxTax()*100;
@@ -5878,83 +5830,59 @@ public class VirementsRecManager implements IVirementsRecManager {
 				TVA = TVA.replace('.', ',');
 				System.out.println("******TVA******"+ TVA);
 
-				sql = "insert into bkevec values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'TAUTAX', 'TAX01', 'D','001', '"+montantTaxSygma+"', '1,0', '"+montantTaxSygma+"', '"+montantTaxSygma+"', '"+montantTaxSygma+"', 'T', '"+TVA+"') ";
-				st.executeUpdate(sql);
+//				sql = "insert into bkevec values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'TAUTAX', 'TAX01', 'D','001', '"+montantTaxSygma+"', '1,0', '"+montantTaxSygma+"', '"+montantTaxSygma+"', '"+montantTaxSygma+"', 'T', '"+TVA+"') ";
+//				st.executeUpdate(sql);
+				bkevec = mapBkevec(t.getAge(), t.getOpe(), t.getEve(), "TAUTAX", "TAX01", "D", "001", montantTaxSygma, "1,0", 
+						montantTaxSygma, montantTaxSygma, montantTaxSygma, "T", TVA);
+				updateBkevec(bkevec);
 
 				System.out.println("*****INSERTION DANS BKEVEC REUSSIE*****");
 			}
 
-			if(st!=null)
-				st.close();
-
-
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		finally
-		{
-			try {
-
-				closeDELTAConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
+		
 	}
 
 
 	public void insertIntoBkrtgsEve(List<TraitementImpots> listTraitementImpots, ParametragesImpots parametragesImpots){
-		openDELTAConnection();
-
-		if(conDELTA==null){System.err.println("----ConDelta est vide----");return;}
-
+		
 		try{
 
-			DataSystem dsCBS = findDataSystem("DELTA-V10");
-
-			Statement st = null;
-			//Statement st2 = null;
-			st=conDELTA.createStatement();
-			st.executeUpdate("SET ISOLATION TO DIRTY READ");
-
-			String sql = "";
+			Bkrtgseve bkrtgseve;
 			for(TraitementImpots t: listTraitementImpots){
 				System.out.println("***insertIntoBkrtgsEve t.getEve()****" + t.getEve());
 
-				sql = "insert into bkrtgseve values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'PRIOR', '30')";
-				st.executeUpdate(sql);
+//				sql = "insert into bkrtgseve values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'PRIOR', '30')";
+//				st.executeUpdate(sql);
+				bkrtgseve =  mapBkrtgseve(t.getAge(), t.getOpe(), t.getEve(), "PRIOR", "30");
+				updateBkrtgseve(bkrtgseve);
 
-				sql = "insert into bkrtgseve values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'NOMBE', '"+t.getNomb()+"') ";
-				st.executeUpdate(sql);
+//				sql = "insert into bkrtgseve values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', 'NOMBE', '"+t.getNomb()+"') ";
+//				st.executeUpdate(sql);
+				bkrtgseve =  mapBkrtgseve(t.getAge(), t.getOpe(), t.getEve(), "NOMBE", t.getNomb());
+				updateBkrtgseve(bkrtgseve);
 
-				sql = "insert into bkrtgseve values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', '00504', '/CODTYPTR/') ";
-				st.executeUpdate(sql);
+//				sql = "insert into bkrtgseve values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', '00504', '/CODTYPTR/') ";
+//				st.executeUpdate(sql);
+				bkrtgseve =  mapBkrtgseve(t.getAge(), t.getOpe(), t.getEve(), "00504", "/CODTYPTR/");
+				updateBkrtgseve(bkrtgseve);
 
-				sql = "insert into bkrtgseve values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', '72002', '001') ";
-				st.executeUpdate(sql);
+//				sql = "insert into bkrtgseve values ('"+t.getAge()+"', '"+t.getOpe()+"', '"+t.getEve()+"', '72002', '001') ";
+//				st.executeUpdate(sql);
+				bkrtgseve =  mapBkrtgseve(t.getAge(), t.getOpe(), t.getEve(), "72002", "001");
+				updateBkrtgseve(bkrtgseve);
 
 				System.out.println("*****INSERTION DANS BKRTGSEVE REUSSIE*****");
 			}
 
-			if(st!=null)
-				st.close();
-
-
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		finally
-		{
-			try {
-
-				closeDELTAConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		
 	}
 
 	public Object[] getQueryValues(String agsa, String age, String ope, String eve,
@@ -6410,8 +6338,505 @@ public class VirementsRecManager implements IVirementsRecManager {
 	
 		}catch(Exception e){}
 	}
+	
+	private void findAIFDataSystem() {
 
+		try {
 
+			// Demarrage du service Facade du portail
+			IFacadeManagerRemote portalFacadeManager = (IFacadeManagerRemote) new InitialContext().lookup( PortalHelper.APPLICATION_EAR.concat("/").concat( IFacadeManagerRemote.SERVICE_NAME ).concat("/remote") );
+
+			// Recuperation de la DS de cnx au CBS
+			dsAIF = (DataSystem) portalFacadeManager.findByProperty(DataSystem.class, "code", "AIF");
+
+		}catch(Exception e){}
+	}
+	
+	public bkeve registerEventToCoreBanking(bkeve eve) {
+		
+		bkeve _eve = null;
+		
+		try {
+			
+			String playload = Shared.mapToJsonString(eve);
+			if(!Shared.isJSONValid(playload)) {
+				return null;
+			}
+			
+			if (dsCbs == null) findCBSServicesDataSystem();
+			if (dsCbs != null && StringUtils.isNotBlank(dsCbs.getDbConnectionString())) {
+				
+				HttpPost post = new HttpPost(dsCbs.getDbConnectionString()+"/transactions/process/event");
+				post.setHeader("content-type", "application/json");
+				post.setEntity(new StringEntity(playload , Consts.UTF_8));
+				
+			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(post);
+			    HttpEntity entity = null;
+			    entity = response.getEntity();
+			    
+			    if(entity != null) {
+			    	
+			    	String content = EntityUtils.toString(entity);
+	                JSONObject json = new JSONObject(content);
+	                
+	                //Verification du code reponse
+	                String resp_code = json.getString("code");
+	                
+	                if(!resp_code.equalsIgnoreCase("200")) {
+	                	return null;
+	                }
+	                
+	                //Recuperation de l'objet renvoyÃ©
+	                JSONObject eveObject = json.getJSONObject("eve");
+	                
+	                //Conversion de l'objet en JsonArray
+	                JSONArray eveArray = new JSONArray();
+	                eveArray.put(eveObject);
+	      
+	    	    	eve = new bkeve();
+    				// CONVERT JSON ARRAY to bkeve
+    			
+    				int n = eveArray.length();
+    				for(int i=0 ; i< n ; i++) {
+    					JSONObject jo = eveArray.getJSONObject(i);
+    					eve = Shared.mapToBkeve(jo);
+    					//eve = Shared.mapToObject(jo, bkeve.class);
+    				}
+			    } 
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return _eve;
+	}
+	
+	public Account getInfosDuCompte(String numCompte) {
+
+		Account cpte = null;
+		
+		try {
+			// Initialisation de DataStore d'Amplitude
+			if(dsAIF == null) findAIFDataSystem();
+			if(dsAIF != null && StringUtils.isNotBlank(dsAIF.getDbConnectionString())) {
+				
+				
+				System.out.println("getDbConnectionString: " + dsAIF.getDbConnectionString()+"/account/getinfoscompte/"+ numCompte.split("-")[0] + "/001/" + numCompte.split("-")[1]);
+				HttpGet getRequest = new HttpGet(dsAIF.getDbConnectionString()+"/account/getinfoscompte/" + numCompte.split("-")[0] + "/001/" + numCompte.split("-")[1]);
+			    getRequest.setHeader("content-type", "application/json");
+			  
+			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(getRequest);
+			    HttpEntity entity = null;
+			    entity = response.getEntity();
+			   
+			    if(entity != null) {
+			    	 
+			    	 List<Account> listComptes = new ArrayList<>();
+			    	 String content = EntityUtils.toString(entity);
+			    	 //System.out.println("content: " + content);
+			    	 
+					 JSONObject json = new JSONObject(content);
+					
+					 ResponseDataAccount responseDataAcc = Shared.mapToObject(json, ResponseDataAccount.class);
+					 String responseCode = responseDataAcc.getCode();
+					// System.out.println("responseCode: " + responseCode);
+					 if ("200".equals(responseCode)) {
+						 
+						 listComptes = responseDataAcc.getDatas();
+						 System.out.println("responseCode listComptes: " + listComptes.size());
+						 if (!listComptes.isEmpty()) {
+							 
+							 cpte =  listComptes.get(0);
+							 
+						 }
+					 } 
+			     }
+			}
+
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+
+		return cpte;
+	}
+	
+	private Account customerAccount(String numCompte) {
+    	Account acc = null;
+    	
+    	try {
+			// Initialisation de DataStore d'Amplitude
+			if(dsAIF == null) findAIFDataSystem();
+			if(dsAIF != null && StringUtils.isNotBlank(dsAIF.getDbConnectionString())) {
+				
+				String age = numCompte.split("-")[0];
+				String ncp = numCompte.split("-")[1];
+				String cle = numCompte.split("-")[2];
+				
+				HttpGet getRequest = new HttpGet(dsAIF.getDbConnectionString()+"/account/getlistecompte/"+ncp.substring(0, 7));
+			    getRequest.setHeader("content-type", "application/json");
+			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(getRequest);
+			    HttpEntity entity = null;
+			    entity = response.getEntity();
+			    
+			    if(entity != null) {
+			    	 
+			    	 List<Account> listComptes = new ArrayList<>();
+			    	 String content = EntityUtils.toString(entity);
+					 JSONObject json = new JSONObject(content);
+					
+					 ResponseDataAccount responseDataAcc = Shared.mapToObject(json, ResponseDataAccount.class);
+					 
+					 String responseCode = responseDataAcc.getCode();
+					 
+					 if ("200".equals(responseCode)) {
+						 
+						 listComptes = responseDataAcc.getDatas();
+						 
+						 for(Account account : listComptes) {
+							 
+							 if (age.equalsIgnoreCase(account.getAgence()) && ncp.equalsIgnoreCase(account.getNcp()) 
+									 && cle.equalsIgnoreCase(account.getCle()) ) {
+								 
+								 acc = account;
+								 break;
+							 
+							 }
+							 
+						 }	 
+					 } 
+			     }
+			}
+
+		} catch(Exception e){
+			return null;
+		}
+    	
+    	return acc;
+    }
+	
+private Client customerInfos(String custId) {
+    	
+    	Client cust = null;
+    	
+    	try {
+    		
+    		if(dsAIF == null) findAIFDataSystem();
+			if(dsAIF != null && StringUtils.isNotBlank(dsAIF.getDbConnectionString())) {
+				
+				HttpGet getRequest = new HttpGet(dsAIF.getDbConnectionString()+"/customer/customerdetails/"+custId);
+			    getRequest.setHeader("content-type", "application/json");
+			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(getRequest);
+			    HttpEntity entity = null;
+			    entity = response.getEntity();
+			 
+			    if(entity != null) {
+			    	 
+			    	 List<Client> listClient = new ArrayList<>();
+			    	 String content = EntityUtils.toString(entity);
+					 JSONObject json = new JSONObject(content);
+					
+					 ResponseDataClient responseDataClt = Shared.mapToObject(json, ResponseDataClient.class);
+					 String responseCode = responseDataClt.getCode();
+					
+					 
+					 if ("200".equals(responseCode)) {
+						 
+						 listClient = responseDataClt.getDatas();
+						 if(!listClient.isEmpty()) {
+							 cust = listClient.get(0);
+						 }
+					 } 
+			     }
+			}
+
+		} catch(Exception e){
+			return null;
+		}
+    	
+    	return cust;
+    }
+	
+	private boolean isUserDelta(String uti) throws Exception {
+
+		boolean res = false;
+		
+		try {
+			
+			if (dsCbs == null) findCBSServicesDataSystem();
+			if(dsCbs != null && StringUtils.isNotBlank(dsCbs.getDbConnectionString())) {
+				
+				HttpGet getRequest = new HttpGet(dsCbs.getDbConnectionString()+"/others/services/getinfoutilisateur/" + uti);
+			    getRequest.setHeader("content-type", "application/json");
+			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(getRequest);
+			    HttpEntity entity = null;
+			    entity = response.getEntity();
+			    
+			    if(entity != null) {
+			    		 
+		    		 String content = EntityUtils.toString(entity);
+					 JSONObject json = new JSONObject(content);
+					 
+					 String responseCode = json.getString("code");
+					 
+					 if ("200".equals(responseCode)) {
+						 res = true;
+					 }
+			    		 
+			    } 
+			}
+		}
+		catch(Exception e) {
+			return false;
+		}
+		
+		// Retourne le resultat 
+		return res;
+	}
+	
+    public Date getDvaDebit(String date, String ncp) {
+		
+		Date dvaDate = null;
+		String pdr;
+		
+		try {
+			
+			pdr = ncp.substring(7, 10);
+			
+			if (dsCbs == null) findCBSServicesDataSystem();
+			if(dsCbs != null && StringUtils.isNotBlank(dsCbs.getDbConnectionString())) {
+				System.out.println("DVA: " + dsCbs.getDbConnectionString()+"/transactions/process/formatteddvadebit/" + date +"/" + pdr);
+				HttpGet getRequest = new HttpGet(dsCbs.getDbConnectionString()+"/transactions/process/formatteddvadebit/" + date +"/" + pdr);
+			    getRequest.setHeader("content-type", "application/json");
+			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(getRequest);
+			    HttpEntity entity = null;
+			    entity = response.getEntity();
+			    
+			    if(entity != null) {
+			    	
+			    	 if(entity != null) {
+			    		 
+			    		 String content = EntityUtils.toString(entity);
+						 JSONObject json = new JSONObject(content);
+						 //System.out.println("JSONObject: " + json);
+						 String responseCode = json.getString("code");
+						 //System.out.println("responseCode: " + responseCode);
+						 if ("200".equalsIgnoreCase(responseCode)) {
+							 String datVal = json.getString("data");
+							 dvaDate = DateUtil.parse(datVal, DateUtil.DATE_TIME_MINUS_FORMAT_);
+						 }
+			    		 
+			    	 }
+			    	
+			    } 
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return dvaDate;
+	}
+    
+    public Date getDvaCredit(String date, String ncp) {
+		
+		Date dvaDate = null;
+		String pdr;
+		
+		try {
+			
+			pdr = ncp.substring(7, 10);
+			
+			if (dsCbs == null) findCBSServicesDataSystem();
+			if(dsCbs != null && StringUtils.isNotBlank(dsCbs.getDbConnectionString())) {
+				System.out.println("DVA: " + dsCbs.getDbConnectionString()+"/transactions/process/formatteddvacredit/" + date +"/" + pdr);
+				HttpGet getRequest = new HttpGet(dsCbs.getDbConnectionString()+"/transactions/process/formatteddvacredit/" + date +"/" + pdr);
+			    getRequest.setHeader("content-type", "application/json");
+			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(getRequest);
+			    HttpEntity entity = null;
+			    entity = response.getEntity();
+			    
+			    if(entity != null) {
+			    	
+			    	 if(entity != null) {
+			    		 
+			    		 String content = EntityUtils.toString(entity);
+						 JSONObject json = new JSONObject(content);
+						 System.out.println("JSONObject: " + json);
+						 String responseCode = json.getString("code");
+						 //System.out.println("responseCode: " + responseCode);
+						 if ("200".equalsIgnoreCase(responseCode)) {
+							 String datVal = json.getString("data");
+							 dvaDate = DateUtil.parse(datVal, DateUtil.DATE_TIME_MINUS_FORMAT_);
+						 }
+			    		 
+			    	 }
+			    	
+			    } 
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return dvaDate;
+	}
+    
+    public boolean isCompteEnOpposition(Account account, String opp){
+		
+		List<StoppageAccount> listStoppages;
+		
+		
+		if(account != null) {
+			
+			listStoppages = account.getStoppages();
+			
+			if(listStoppages != null) {
+				for (StoppageAccount sto : listStoppages) {
+					
+					if("V".equals(sto.getStatus()) && opp.equals(sto.getCode())) {
+						return Boolean.TRUE;
+					}
+					
+				}
+			}
+			
+		}
+	
+		return Boolean.FALSE;
+	}
+    
+    private boolean updateBkevec(Bkevec evec) throws Exception {
+
+		boolean res = false;
+		
+		try {
+			
+			
+			String playload = null;
+			
+			playload = Shared.mapToJsonString(evec);
+			if(!Shared.isJSONValid(playload)) {
+				return res;
+			}
+			
+			if (dsCbs == null) findCBSServicesDataSystem();
+			if(dsCbs != null && StringUtils.isNotBlank(dsCbs.getDbConnectionString())) {
+				
+				HttpPost post = new HttpPost(dsCbs.getDbConnectionString()+"/transactions/process/insertbkevec");
+				post.setHeader("content-type", "application/json");
+				post.setEntity(new StringEntity(playload , Consts.UTF_8));
+				
+			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(post);
+			    
+			    HttpEntity entity = null;
+			    entity = response.getEntity();
+			    
+			    if(entity != null) {
+			    		 
+		    		 String content = EntityUtils.toString(entity);
+					 JSONObject json = new JSONObject(content);
+					 
+					 String responseCode = json.getString("code");
+					 
+					 if ("200".equals(responseCode)) {
+						 res = true;
+					 }
+			    		 
+			    } 
+			}
+		}
+		catch(Exception e) {
+			return false;
+		}
+		
+		// Retourne le resultat 
+		return res;
+	}
+    
+    private Bkevec mapBkevec(String age, String ope, String eve, String nat, 
+    		String iden, String typc, String devr, String mcomr, String txref, String mcomc, String mcomn, 
+    			String mcomt, String tax, String tcom) {
+    	
+    	Bkevec bkevec = new Bkevec();
+		bkevec.setAge(age);
+		bkevec.setOpe(ope);
+		bkevec.setEve(eve);
+		bkevec.setNat(nat);
+		bkevec.setIden(iden);
+		bkevec.setTypc(typc);
+		bkevec.setDevr(devr);
+		bkevec.setMcomr(mcomr);
+		bkevec.setTxref(txref);
+		bkevec.setMcomc(mcomc);
+		bkevec.setMcomn(mcomn);
+		bkevec.setMcomt(mcomt);
+		bkevec.setTax(tax);
+		bkevec.setTcom(tcom);
+		
+		return bkevec;
+    }
+    
+    
+    private boolean updateBkrtgseve(Bkrtgseve  eveg) throws Exception {
+
+		boolean res = false;
+		
+		try {
+			
+			String playload = null;
+			
+			playload = Shared.mapToJsonString(eveg);
+			if(!Shared.isJSONValid(playload)) {
+				return res;
+			}
+			
+			if (dsCbs == null) findCBSServicesDataSystem();
+			if(dsCbs != null && StringUtils.isNotBlank(dsCbs.getDbConnectionString())) {
+				
+				HttpPost post = new HttpPost(dsCbs.getDbConnectionString()+"/transactions/process/insertbkrtgseve");
+				post.setHeader("content-type", "application/json");
+				post.setEntity(new StringEntity(playload , Consts.UTF_8));
+				
+			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(post);
+				
+			    HttpEntity entity = null;
+			    entity = response.getEntity();
+			    
+			    if(entity != null) {
+			    		 
+		    		 String content = EntityUtils.toString(entity);
+					 JSONObject json = new JSONObject(content);
+					 
+					 String responseCode = json.getString("code");
+					 
+					 if ("200".equals(responseCode)) {
+						 res = true;
+					 }
+			    		 
+			    } 
+			}
+		}
+		catch(Exception e) {
+			return false;
+		}
+		
+		// Retourne le resultat 
+		return res;
+	}
+    
+    private Bkrtgseve mapBkrtgseve(String age, String ope, String eve, String iden, String vala) {
+    	
+    	Bkrtgseve bkrtgseve = new Bkrtgseve();
+    	bkrtgseve.setAge(age);
+    	bkrtgseve.setOpe(ope);
+    	bkrtgseve.setIden(eve);
+    	bkrtgseve.setIden(iden);
+    	bkrtgseve.setVala(vala);
+		
+		return bkrtgseve;
+    }
 
 
 

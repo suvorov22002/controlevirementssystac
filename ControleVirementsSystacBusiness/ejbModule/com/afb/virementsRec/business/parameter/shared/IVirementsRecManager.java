@@ -160,7 +160,7 @@ public interface IVirementsRecManager {
 	
 	public List<String> recuperationsValCB(String uti, String cli, String age, String ncp, String clc, String dev, Date dsai);
 	
-	public void ZinsertIntoBkeve(List<TraitementImpots> listTraitementImpots);
+	public void insertIntoBkeve(List<TraitementImpots> listTraitementImpots);
 	
 	//public boolean genererFichierRejet(List<Rejet> listRejets);
 	

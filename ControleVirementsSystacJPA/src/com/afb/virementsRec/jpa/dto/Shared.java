@@ -83,4 +83,14 @@ public class Shared {
 		return o;
 	}
 	
+	public static bkeve mapToBkeve(JSONObject obj) throws JsonParseException, JsonMappingException, IOException, JSONException {
+		bkeve o = mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY).readValue(obj.toString(), bkeve.class);
+		return o;
+	}
+	
+	public static <T> T mapToObject(JSONObject obj, Class<T> contentClass) throws JsonParseException, JsonMappingException, IOException, JSONException {
+		T o = (T) mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY).readValue(obj.toString(), contentClass);
+		return o;
+	}
+	
 }

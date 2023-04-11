@@ -1251,12 +1251,12 @@ public class TraitementIncoherencesListPanel extends AbstractPanel {
 
 
 
-	public String putOpposition(List<Incoherences> listIncoherences){
-
-		String okay = ViewHelper.virementsRecManager.setIncoherencesEnAttente(listIncoherences, null,isInBkeveOrBkheve,user);
-
-		return okay;
-	}
+//	public String putOpposition(List<Incoherences> listIncoherences){
+//
+//		String okay = ViewHelper.virementsRecManager.setIncoherencesEnAttente(listIncoherences, null,isInBkeveOrBkheve,user);
+//
+//		return okay;
+//	}
 
 
 	public Traitement getElement(){

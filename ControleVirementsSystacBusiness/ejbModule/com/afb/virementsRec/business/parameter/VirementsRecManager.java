@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -977,19 +978,31 @@ public class VirementsRecManager implements IVirementsRecManager {
 			if(conDELTA==null){System.out.println("----ConDelta est vide----");return null;}
 
 			int entered = 1;
+			int virJournee;
+			int virATraite;
+			int nbrBelowSeuil;
+			int nbrEMF=0;
+			Client client;
+			Account account;
+			
 			do{
-dddd
-				/*******************************Verif décompte total de virements pour la journée******************************/
-				String queryBase = "select count(*) as count from bkbeacrv b where b.drec = '"+dateOfToday+"'"; //and agec in '('"+listAgences+"')'
-				String sqlQuery = queryBase + "	and b.tope in ('10', '13')  ";
-				st = conDELTA.createStatement();
-				rs = st.executeQuery(sqlQuery);
-				int virJournee=0;
-				while(rs.next()){
-					virJournee = (rs.getInt("count")!=0)?rs.getInt("count"): 0;
-				}
-				if(rs!=null)rs.close();
 
+				/*******************************Verif décompte total de virements pour la journée******************************/
+//				String queryBase = "select count(*) as count from bkbeacrv b where b.drec = '"+dateOfToday+"'"; //and agec in '('"+listAgences+"')'
+//				String sqlQuery = queryBase + "	and b.tope in ('10', '13')  ";
+//				st = conDELTA.createStatement();
+//				rs = st.executeQuery(sqlQuery);
+				
+				virJournee = 0;
+				List<Bkbeacrv> lbkbeacrv = getBkbeacrv(dateOfToday);
+				if (lbkbeacrv != null) {
+					for(Bkbeacrv bkea : lbkbeacrv) {
+						if ("10".equals(bkea.getTope()) || "13".equals(bkea.getTope())) {
+							virJournee += 1;
+						}
+					}
+				}
+				
 				if(virJournee==0){
 					System.err.println("*****Erreur! Le decompte total des virements pour la journée ne peut pas être zero!!!!!*****");
 					return null;
@@ -997,16 +1010,23 @@ dddd
 
 
 				/*******************************Verif décompte total de virements à traiter (10-21, 13-21, RCP)******on inclus la soustraction dans le rapport pour trouver le gap************************/
-				String queryForOpeToTraite= " and b.ope = '' and (b.eve = '' or b.eve = ' ' or b.eve is null) and b.dco is null ";
-				String queryForVirToTraite = " and b.nat = 'RCP' and b.cenr in ('21') and b.tope in ('10', '13') ";
-				String query = queryBase + queryForOpeToTraite + queryForVirToTraite;
-				rs = st.executeQuery(query);
-				int virATraite=0;
-				while(rs.next()){
-					virATraite = (rs.getInt("count")!=0)?rs.getInt("count"): 0;
+//				String queryForOpeToTraite= " and b.ope = '' and (b.eve = '' or b.eve = ' ' or b.eve is null) and b.dco is null ";
+//				String queryForVirToTraite = " and b.nat = 'RCP' and b.cenr in ('21') and b.tope in ('10', '13') ";
+//				String query = queryBase + queryForOpeToTraite + queryForVirToTraite;
+				//rs = st.executeQuery(query);
+				virATraite = 0;
+				
+				if (lbkbeacrv != null) {
+					for(Bkbeacrv bkea : lbkbeacrv) {
+						if (StringUtils.isBlank(bkea.getOpe()) && bkea.getDco() == null && (StringUtils.isBlank(bkea.getEve())) 
+								&& "RCP".equals(bkea.getNat()) && "21".equals(bkea.getCenr()) && ("10".equals(bkea.getTope()) || "13".equals(bkea.getTope()))) {
+							
+							virATraite += 1;
+							
+						}
+					}
 				}
-				if(rs!=null)rs.close();
-
+				
 				if(virATraite==0){
 					System.err.println("*****Erreur! Le decompte total  des virements à traiter ne peut pas être zero!!!!!*****");
 					return null;
@@ -1014,19 +1034,25 @@ dddd
 
 
 				/*******************************Nbr inférieur au plancher*****************************************************************/
-				query = query + " and  b.mon <  '"+mont+"'  ";
-				rs = st.executeQuery(query);
-				int nbrBelowSeuil=0;
-				while(rs.next()){
-					nbrBelowSeuil = (rs.getInt("count")!=0)?rs.getInt("count"): 0;
+//				query = query + " and  b.mon <  '"+mont+"'  ";
+				//rs = st.executeQuery(query);
+				nbrBelowSeuil=0;
+				
+				if (lbkbeacrv != null) {
+					for(Bkbeacrv bkea : lbkbeacrv) {
+						if (StringUtils.isBlank(bkea.getOpe()) && bkea.getDco() == null && (StringUtils.isBlank(bkea.getEve())) && bkea.getMon() < mont
+								&& "RCP".equals(bkea.getNat()) && "21".equals(bkea.getCenr()) && ("10".equals(bkea.getTope()) || "13".equals(bkea.getTope()))) {
+							
+							nbrBelowSeuil += 1;
+							
+						}
+					}
 				}
-				if(rs!=null)rs.close();
-
-
+				
 				/*****************************************Nbr EMF*********************************************************************/
-				int nbrEMF=0;
+				nbrEMF=0;
 
-				if(chap!=null&&!chap.isEmpty()){
+				if(chap!=null && !chap.isEmpty()){
 
 					String chaps [] = chap.split(",");
 					String newChap = "";
@@ -1036,32 +1062,50 @@ dddd
 						else
 							newChap = newChap + "," + "\'" +ch.trim()+ "\'";
 					}
-
-					String queryAdd = "select count(*) as count from bkbeacrv b left join bkcli c on c.cli=b.ncp[1,7] left join bkcom d on (b.ncp = d.ncp and b.age = d.age)  where  b.drec = '"+dateOfToday+"' " +
-							queryForOpeToTraite + queryForVirToTraite + " and d.cha[1,2] in ("+newChap+")   ";  //and b.agec in ('00001', '00002', '00003', '00004', '00005')
-
-					System.out.println("****queryAdd***" + queryAdd);
-					System.out.println("****queryAdd***" + queryAdd);
-					System.out.println("****queryAdd***" + queryAdd);
-
-					rs = st.executeQuery(queryAdd);
-					while(rs.next()){
-						nbrEMF = (rs.getInt("count")!=0)?rs.getInt("count"): 0;
-						System.out.println("****rs.getInt***" + rs.getInt("count"));
-						System.out.println("****nbrEMF***" + nbrEMF);
-
+                    
+					
+					if (lbkbeacrv != null) {
+						
+						for(Bkbeacrv bkea : lbkbeacrv) {
+							if (StringUtils.isBlank(bkea.getOpe()) && bkea.getDco() == null && (StringUtils.isBlank(bkea.getEve())) 
+									&& "RCP".equals(bkea.getNat()) && "21".equals(bkea.getCenr()) && ("10".equals(bkea.getTope()) || "13".equals(bkea.getTope()))) {
+								
+								client = customerInfos(bkea.getNcp().substring(0, 7));
+								account = getInfosDuCompte(bkea.getAge() + "-" + bkea.getNcp());
+								
+								if (client != null && account != null && account.getChapitre().equals(newChap)) {
+									nbrEMF += 1;
+								}
+								
+							}
+						}
+						
 					}
+					
+//					String queryAdd = "select count(*) as count from bkbeacrv b left join bkcli c on c.cli=b.ncp[1,7] left join bkcom d on (b.ncp = d.ncp and b.age = d.age)  where  b.drec = '"+dateOfToday+"' " +
+//							queryForOpeToTraite + queryForVirToTraite + " and d.cha[1,2] in ("+newChap+")   ";  //and b.agec in ('00001', '00002', '00003', '00004', '00005')
+//
+//					System.out.println("****queryAdd***" + queryAdd);
+//					System.out.println("****queryAdd***" + queryAdd);
+//					System.out.println("****queryAdd***" + queryAdd);
+//
+//					rs = st.executeQuery(queryAdd);
+//					while(rs.next()){
+//						nbrEMF = (rs.getInt("count")!=0)?rs.getInt("count"): 0;
+//						System.out.println("****rs.getInt***" + rs.getInt("count"));
+//						System.out.println("****nbrEMF***" + nbrEMF);
+//
+//					}
 				}
-				if(rs!=null)rs.close();
+//				if(rs!=null)rs.close();
 
 
 
-				dateToday = new SimpleDateFormat("yyyy-MM-dd").parse(dateOfToday);
+				dateToday = new SimpleDateFormat("ddMMyyyy").parse(dateOfToday);
 
 				traitementsBD = filterVirementsInDB(dateToday, null, traite, tailleParLot, mont);
-				if(traitementsBD!=null&&!traitementsBD.isEmpty()){
-
-				}else{
+				
+				if(traitementsBD ==null || traitementsBD.isEmpty()){
 					traitementsBD = new ArrayList<Traitement>();
 				}
 
@@ -1109,112 +1153,91 @@ dddd
 						"where b.nat = 'RCP' and b.tope in ('10', '13') and b.cenr = '21' and b.drec = '"+dateOfToday+"' and b.ope = '' and b.mon  >= '"+mont+"' and d.cha[1,2] not in ('56','38') order by b.ncp";  //561900, 561960, 561850, 561980, 561950, 561902, 561990, 543900, 543950  ---38
 				 */
 				/*************************VIREMENTS TRAITES*****************************************************************************/
-				String sql="";
-				sql = "select b.agec, b.ncp, b.clc, b.dev, b.zone, b.nat, b.tope, b.cenr, b.drec, b.dreg, b.dsort, b.ope, b.ndoc, " +
-						"b.mon, b.dco, b.dcom, b.eve, b.utrt,  "+
-						"b.etabr, b.guibr,b.comr, b.cler, c.nomrest, c.rso, c.sig, c.nom, c.pre "+
-						"from bkbeacrv b left join bkcli c on c.cli=b.ncp[1,7] left join bkcom d on (b.ncp = d.ncp and b.age = d.age)  " +
-						"where b.drec = '"+dateOfToday+"' and b.mon  >= '"+mont+"' " + queryForOpeToTraite + queryForVirToTraite;  //561900, 561960, 561850, 561980, 561950, 561902, 561990, 543900, 543950  ---38
-				//and b.agec in ('00001', '00002', '00003', '00004', '00005')
+//				String sql="";
+//				sql = "select b.agec, b.ncp, b.clc, b.dev, b.zone, b.nat, b.tope, b.cenr, b.drec, b.dreg, b.dsort, b.ope, b.ndoc, " +
+//						"b.mon, b.dco, b.dcom, b.eve, b.utrt,  "+
+//						"b.etabr, b.guibr,b.comr, b.cler, c.nomrest, c.rso, c.sig, c.nom, c.pre "+
+//						"from bkbeacrv b left join bkcli c on c.cli=b.ncp[1,7] left join bkcom d on (b.ncp = d.ncp and b.age = d.age)  " +
+//						"where b.drec = '"+dateOfToday+"' and b.mon  >= '"+mont+"' " + queryForOpeToTraite + queryForVirToTraite;  //561900, 561960, 561850, 561980, 561950, 561902, 561990, 543900, 543950  ---38
+//				//and b.agec in ('00001', '00002', '00003', '00004', '00005')
 				//boolean ok = false;
-				/**if(nature!=null && !nature.isEmpty()){
-					sql = sql + " and";
-					//ok=true;
-					sql = sql + " b.nat = '"+nature+"'";
-				}
-				if(typeOpe!=null &&!typeOpe.isEmpty()){
-					//if(ok){
-					sql = sql + " and";
-					sql = sql + "  b.tope in ('"+typeOpe+"')";
-					/*}else{
-						sql = sql + " where";
-						ok=true;
-						sql = sql + "  b.tope in ('"+typeOpe+"')";
-					}
-				}
-				if(codeEnreg!=null && !codeEnreg.isEmpty()){
-					//if(ok){
-					sql = sql + " and";
-					sql = sql + "  b.cenr in ('"+codeEnreg+"')";
-					/*}else{
-						sql = sql + " where";
-						ok=true;
-						sql = sql + "  b.cenr = '"+codeEnreg+"' ";
-					}
-				}*/
-				if(chap!=null&&!chap.isEmpty()){
+				
+				boolean verifChap = false;
+				String newChap = "";
+				List<String> chaps = new ArrayList<>();
+				
+				if(chap != null && !chap.isEmpty()){
 
-					String chaps [] = chap.split(",");
-					String newChap = "";
-					for(String ch: chaps){
-						if(newChap.isEmpty())
-							newChap = "\'" +ch.trim()+ "\'";
-						else
-							newChap = newChap + "," + "\'" +ch.trim()+ "\'";
-					}
-					//if(ok){
-					sql = sql + " and";
-					sql = sql + "  d.cha[1,2] not in ("+newChap+")   ";
-					/*}else{
-						sql = sql + " where";
-						ok=true;
-						sql = sql + "  d.cha[1,2] not in ('"+chap+"')  ";
-					}*/
+					String[] _chaps = chap.split(",");
+					chaps = Arrays.asList(_chaps);  
+				
+					verifChap = true;
 
 				}
-				sql = sql + " order by b.agec, b.ncp"; 
+//				sql = sql + " order by b.agec, b.ncp"; 
+				
+				if (lbkbeacrv != null) {
+					
+					for(Bkbeacrv bkea : lbkbeacrv) {
+						if (StringUtils.isBlank(bkea.getOpe()) && bkea.getDco() == null && (StringUtils.isBlank(bkea.getEve())) && bkea.getMon() >= mont 
+								&& "RCP".equals(bkea.getNat()) && "21".equals(bkea.getCenr()) && ("10".equals(bkea.getTope()) || "13".equals(bkea.getTope()))) {
+							
+							client = customerInfos(bkea.getNcp().substring(0, 7));
+							account = getInfosDuCompte(bkea.getAge() + "-" + bkea.getNcp());
+							
+							if (client != null && account != null) {
+								
+								if (verifChap && chaps.contains(account.getChapitre().substring(0, 2))) {
+									continue;
+								}
+								else {
+									
+									agence = (bkea.getAgec() != null) ? bkea.getAgec().trim() : " ";  //agence cpt bénéficiaire
+									ncp = (bkea.getNcp() != null) ? bkea.getNcp().trim() : " "; //numéro de compte bénéficiaire
+									clc = (bkea.getClc() != null) ? bkea.getClc().trim() : " "; //clé de compte bénéficiaire
+									nat = (bkea.getNat() != null) ? bkea.getNat().trim() : " "; //nature du fichier
+									tope = (bkea.getTope() != null) ? bkea.getTope().trim() : " "; //type d'opération
+									cenr = (bkea.getCenr() != null) ? bkea.getCenr().trim() : " "; //code enregistrement
+									drec = (bkea.getDrec() != null) ? bkea.getDrec() : null;  //date de réception
+									dreg = (bkea.getDreg() != null) ? bkea.getDreg() : null;  //date de réception
+									dsort = (bkea.getDsort() != null) ? bkea.getDsort() : null;  //date de réception
+									ope = (bkea.getOpe() != null) ? bkea.getOpe().trim() : " "; //code opération
+									ndoc = (bkea.getNdoc() != null) ? bkea.getNdoc().trim(): " "; //numéro du document
+									montant = (bkea.getMon() != 0.0) ? bkea.getMon() : 0.0; //montant de l'opération
+									dco = (bkea.getDco() != null) ? bkea.getDco() : null; //date comptable
+									dcom = (bkea.getDcom() != null) ? bkea.getDcom() : null;  //date de compensation
+									eve = (bkea.getEve() != null) ? bkea.getEve().trim(): " "; //numéro d'évènement
+									zone = (bkea.getZone() != null) ? bkea.getZone().trim(): " "; //contenu du fichier
+									devise = (bkea.getDev() != null) ? bkea.getDev().trim(): " "; //devise bénéficiaire
+									uti = (bkea.getUtrt() != null) ? bkea.getUtrt().trim(): " "; //Code utilisateur ayant initié l'évènement*/
+									etabr = (bkea.getEtabr() != null) ? bkea.getEtabr().trim(): " "; //code établissement de remettant (débiteur/donneur d'ordre)
+									guibr = (bkea.getGuibr() != null) ? bkea.getGuibr().trim(): " "; //code guichet du remettant (débiteur)
+									comr = (bkea.getComr() != null) ? bkea.getComr().trim(): " "; //numéro de compte du débiteur
+									cler = (bkea.getCler() != null) ? bkea.getCler().trim(): " "; //clé de compte du débiteur	
+									nomrest = (client.getCustomerName() != null) ? client.getCustomerName().trim() : client.getNom().trim()+' '+(client.getPrenom() != null ? client.getPrenom().trim() : ""); //nom du bénéficiaire Amplitude
+									sig = (rs.getString("sig")!=null && !rs.getString("sig").trim().isEmpty()) ? rs.getString("sig").trim() : ""; //nom du bénéficiaire Amplitude
+									nomr = zone.substring(98, 128); //nom de l'établissement autre banque (débiteur) ****/
+									nom2 = zone.substring(158, 188); //nom du bénéficiaire
+
+									traitement = new Traitement(agence, ncp, clc, devise, nom2, nomrest, sig, drec, dco, dcom, tope, cenr, ndoc, ope, 
+											eve, montant, zone, uti, etabr, guibr, comr, cler, nomr, new Date(), utiPortal, virJournee, virATraite, nbrBelowSeuil, nbrEMF);
+									traitements.add(traitement);
+									
+								}
+								
+							}
+							
+						}
+					}
+					
+				}
 
 
 
 				//st = conDELTA.createStatement();
-				rs = st.executeQuery(sql);
+				//rs = st.executeQuery(sql);
 
-				while(rs.next()){
-
-					agence = (rs.getString("agec")!=null)?rs.getString("agec").trim(): " ";  //agence cpt bénéficiaire
-					ncp = (rs.getString("ncp")!=null)?rs.getString("ncp").trim(): " "; //numéro de compte bénéficiaire
-					clc = (rs.getString("clc")!=null)?rs.getString("clc").trim(): " "; //clé de compte bénéficiaire
-					nat = (rs.getString("nat")!=null)?rs.getString("nat").trim(): " "; //nature du fichier
-					tope = (rs.getString("tope")!=null)?rs.getString("tope").trim(): " "; //type d'opération
-					cenr = (rs.getString("cenr")!=null)?rs.getString("cenr").trim(): " "; //code enregistrement
-					drec = (rs.getDate("drec")!=null)?rs.getDate("drec"): null;  //date de réception
-					dreg = (rs.getDate("dreg")!=null)?rs.getDate("dreg"): null;  //date de réception
-					dsort = (rs.getDate("dsort")!=null)?rs.getDate("dsort"): null;  //date de réception
-					ope = (rs.getString("ope")!=null)?rs.getString("ope").trim(): " "; //code opération
-					ndoc = (rs.getString("ndoc")!=null)?rs.getString("ndoc").trim(): " "; //numéro du document
-					montant = (rs.getDouble("mon")!=0.0)?rs.getDouble("mon"): 0.0; //montant de l'opération
-					dco = (rs.getDate("dco")!=null)?rs.getDate("dco"): null; //date comptable
-					dcom = (rs.getDate("dcom")!=null)?rs.getDate("dcom"): null;  //date de compensation
-					eve = (rs.getString("eve")!=null)?rs.getString("eve").trim(): " "; //numéro d'évènement
-					zone = (rs.getString("zone")!=null)?rs.getString("zone").trim(): " "; //contenu du fichier
-					devise = (rs.getString("dev")!=null)?rs.getString("dev").trim(): " "; //devise bénéficiaire
-					uti = (rs.getString("utrt")!=null)?rs.getString("utrt").trim(): " "; //Code utilisateur ayant initié l'évènement*/
-					etabr = (rs.getString("etabr")!=null)?rs.getString("etabr").trim(): " "; //code établissement de remettant (débiteur/donneur d'ordre)
-					guibr = (rs.getString("guibr")!=null)?rs.getString("guibr").trim(): " "; //code guichet du remettant (débiteur)
-					comr = (rs.getString("comr")!=null)?rs.getString("comr").trim(): " "; //numéro de compte du débiteur
-					cler = (rs.getString("cler")!=null)?rs.getString("cler").trim(): " "; //clé de compte du débiteur	
-					nomrest = (rs.getString("nomrest")!=null)?rs.getString("nomrest").trim(): rs.getString("nom").trim()+' '+(rs.getString("pre") != null ? rs.getString("pre").trim() : "")+' '+(rs.getString("midname") != null ? rs.getString("midname").trim() : ""); //nom du bénéficiaire Amplitude
-					//nomrest = (rs.getString("rso")!=null && !rs.getString("rso").trim().isEmpty()) ? rs.getString("rso").trim() : rs.getString("nom").trim()+' '+(rs.getString("pre") != null ? rs.getString("pre").trim() : ""); //nom du bénéficiaire Amplitude
-					sig = (rs.getString("sig")!=null && !rs.getString("sig").trim().isEmpty()) ? rs.getString("sig").trim() : ""; //nom du bénéficiaire Amplitude
-					nomr = zone.substring(98, 128); //nom de l'établissement autre banque (débiteur) ****/
-					nom2 = zone.substring(158, 188); //nom du bénéficiaire
-
-					//System.out.println("***eve****" + eve);
-					//System.out.println("***dco****" + dco);
-					//if((eve.equals(" ")||eve.isEmpty()||eve==null) && dco==null){
-					traitement = new Traitement(agence, ncp, clc, devise, nom2, nomrest, sig, drec, dco, dcom, tope, cenr, ndoc, ope, eve, montant, zone, uti, etabr, guibr, comr, cler, nomr, new Date(), utiPortal, virJournee, virATraite, nbrBelowSeuil, nbrEMF);
-					traitements.add(traitement);
-					//}
-
-				}
-
-				if(rs!=null)
-					rs.close();
-
-				if(st!=null)
-					st.close();
-
-
+				
 				/***Filtre pour éviter les doublons**/
 				//String key1 = "";
 				//String key2 = "";

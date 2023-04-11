@@ -111,10 +111,12 @@ import com.afb.virementsRec.jpa.datamodel.TypeProcess;
 import com.afb.virementsRec.jpa.datamodel.TypeTraitement;
 import com.afb.virementsRec.jpa.datamodel.ValidateDoublonsInFichier;
 import com.afb.virementsRec.jpa.dto.Account;
+import com.afb.virementsRec.jpa.dto.Bkbeacrv;
 import com.afb.virementsRec.jpa.dto.Bkevec;
 import com.afb.virementsRec.jpa.dto.Bkrtgseve;
 import com.afb.virementsRec.jpa.dto.Client;
 import com.afb.virementsRec.jpa.dto.ResponseDataAccount;
+import com.afb.virementsRec.jpa.dto.ResponseDataBkeacvr;
 import com.afb.virementsRec.jpa.dto.ResponseDataClient;
 import com.afb.virementsRec.jpa.dto.Shared;
 import com.afb.virementsRec.jpa.dto.StoppageAccount;
@@ -936,7 +938,8 @@ public class VirementsRecManager implements IVirementsRecManager {
 
 		List<Traitement> traitementsToDisplay = new ArrayList<Traitement>();
 
-		String dateOfToday = new SimpleDateFormat("yyyy-MM-dd").format(dateDebut);   //dateDebut
+		//String dateOfToday = new SimpleDateFormat("yyyy-MM-dd").format(dateDebut);   //dateDebut
+		String dateOfToday = new SimpleDateFormat("ddMMyyyy").format(dateDebut);   //dateDebut
 
 		Date dateToday = null;
 
@@ -975,7 +978,7 @@ public class VirementsRecManager implements IVirementsRecManager {
 
 			int entered = 1;
 			do{
-
+dddd
 				/*******************************Verif décompte total de virements pour la journée******************************/
 				String queryBase = "select count(*) as count from bkbeacrv b where b.drec = '"+dateOfToday+"'"; //and agec in '('"+listAgences+"')'
 				String sqlQuery = queryBase + "	and b.tope in ('10', '13')  ";
@@ -6516,7 +6519,7 @@ public class VirementsRecManager implements IVirementsRecManager {
     	return acc;
     }
 	
-private Client customerInfos(String custId) {
+ private Client customerInfos(String custId) {
     	
     	Client cust = null;
     	
@@ -6837,6 +6840,51 @@ private Client customerInfos(String custId) {
 		
 		return bkrtgseve;
     }
+    
+    public List<Bkbeacrv> getBkbeacrv(String dateOfToday) {
+		
+    	List<Bkbeacrv> listBkbeacrv = null;
+ 		
+ 		try {
+ 			//"select * from bkcom where age = ? and ncp = ? and clc = ? and cfe='N' and ife='N'"
+ 			if (dsCbs == null) findCBSServicesDataSystem();
+ 			if(dsCbs != null && StringUtils.isNotBlank(dsCbs.getDbConnectionString())) {
+ 				
+ 				HttpGet getRequest = new HttpGet(dsCbs.getDbConnectionString()+"/transactions/process/getlistebkbeacrv/" + dateOfToday);
+ 			    getRequest.setHeader("content-type", "application/json");
+ 			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(getRequest);
+ 			    HttpEntity entity = null;
+ 			    entity = response.getEntity();
+ 			    
+ 			    if(entity != null) {
+ 			    	
+ 			    	 if(entity != null) {
+ 			    		 
+ 			    		 List<Bkbeacrv> listData = new ArrayList<>();
+ 			    		 String content = EntityUtils.toString(entity);
+ 						 JSONObject json = new JSONObject(content);
+ 						 
+ 						ResponseDataBkeacvr responseData = Shared.mapToObject(json, ResponseDataBkeacvr.class);
+ 						String responseCode = responseData.getCode();
+ 						
+ 						 
+ 						 if ("200".equals(responseCode)) {
+ 							
+ 							 listBkbeacrv = responseData.getData();
+ 							 
+ 						 }
+ 			    		 
+ 			    	 }
+ 			    	
+ 			    } 
+ 			}
+ 		}
+ 		catch(Exception e) {
+ 			return null;
+ 		}
+ 		
+ 		return listBkbeacrv;
+ 	}
 
 
 

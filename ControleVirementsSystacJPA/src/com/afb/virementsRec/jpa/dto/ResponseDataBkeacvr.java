@@ -10,7 +10,7 @@ public class ResponseDataBkeacvr extends ResponseBase{
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
 	
-	private List<Bkbeacrv> datas = new ArrayList<Bkbeacrv>();
+	private List<Bkbeacrv> data = new ArrayList<Bkbeacrv>();
 	
 	public ResponseDataBkeacvr() {
 		super();
@@ -19,14 +19,14 @@ public class ResponseDataBkeacvr extends ResponseBase{
 	/**
 	 * @return the datas
 	 */
-	public List<Bkbeacrv> getDatas() {
-		return datas;
+	public List<Bkbeacrv> getData() {
+		return data;
 	}
 
 	/**
 	 * @param datas the datas to set
 	 */
-	public void setDatas(List<Bkbeacrv> datas) {
-		this.datas = datas;
+	public void setData(List<Bkbeacrv> datas) {
+		this.data = datas;
 	}
 }

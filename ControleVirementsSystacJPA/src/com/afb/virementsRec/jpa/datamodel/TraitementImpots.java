@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.*;
 
 import com.afb.virementsRec.jpa.tools.HelperQuerry;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,9 +34,11 @@ public class TraitementImpots implements Serializable{
 	@Column(name = "TRAITEMENT_ID")
 	private Long id;
 	
+	@JsonIgnore
 	@Column(name = "DATE_TRAITEMENT")
 	private Date dateTraitement = new Date();
 	
+	@JsonIgnore
 	@Column(name = "UTI_PORTAL")
 	private String utiPortal;
 
@@ -992,30 +995,38 @@ public class TraitementImpots implements Serializable{
 	private String refdos = HelperQuerry.padText("", HelperQuerry.RIGHT, 1, " "); // Référence de la procuration VARCHAR 0 - 20
 	private Double tchfr = 0d; // Taux de change francophone DECIMAL 15 - 7
 	
+	@JsonIgnore
 	//@Column(name = "CFRA")
 	private String cfra = "O";
 	
+	@JsonIgnore
 	//@Column(name = "NEFF")
-	private String neff = "        ";
+	private String neff = "  ";
 	
+	@JsonIgnore
 	//@Column(name = "TEFF")
-	private String teff = " ";
+	private String teff = "  ";
 	
+	@JsonIgnore
 	@Column(name = "NIDNP")
-	private String nidnp = "                    ";
+	private String nidnp = "";
 	
+	@JsonIgnore
 	@Column(name = "FRAISDIFF1")
 	private Double fraisdiff1 = null;
 	
+	@JsonIgnore
 	@Column(name = "FRAISDIFF2")
 	private Double fraisdiff2 = null;
 
+	@JsonIgnore
 	@Column(name = "VALIDE")
 	private Boolean valide = Boolean.FALSE;
 	
 	/**
 	 * Marqueur determinant si l'evenement n'a pas ete poste dans Delta pour cause de TFJ
 	 */
+	@JsonIgnore
 	@Column(name = "SUSPEND_IN_TFJ")
 	private Boolean suspendInTFJ = Boolean.FALSE;
 
@@ -1325,6 +1336,7 @@ public class TraitementImpots implements Serializable{
 	 * Retourne la requete de creation de l'evenement
 	 * @return
 	 */
+	@JsonIgnore
 	public String getSaveQuery() {
 		return "INSERT INTO BKEVE (AGSA, AGE,   OPE, EVE, TYP,   NDOS, AGE1, DEV1,   NCP1, SUF1, CLC1, CLI1, NOM1, GES1, SEN1, MHT1, MON1, " + 
 		"DVA1, EXO1, SOL1, INDH1, INDS1, DESA1, DESA2, DESA3, DESA4, DESA5, AGE2, DEV2, NCP2, SUF2, CLC2, CLI2, NOM2, GES2,SEN2, MHT2, MON2, " +
@@ -1344,11 +1356,12 @@ public class TraitementImpots implements Serializable{
 		"?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?," + 
 		"?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?,  ?, ?,  ?, ?, ?,  ?, ? )";
 	}
-
+	@JsonIgnore
 	public String getCheckQuery(){
 		return "select * from BKEVE where OPE=? and EVE=? and AGE1=? and NCP1=? and CLC1=? and MON1=? and AGE2=? and NCP2=? and CLC2=? and MON2=? and DCO=? and ETA=?";		
 	}
-
+	
+	@JsonIgnore
 	public Object[] getQueryCheckValues() {
 
 		Object[] values = new Object[12];
@@ -1368,7 +1381,7 @@ public class TraitementImpots implements Serializable{
 
 	}
 
-
+	@JsonIgnore
 	public Object[] getQueryValues() {
 
 		Object[] values = new Object[236];

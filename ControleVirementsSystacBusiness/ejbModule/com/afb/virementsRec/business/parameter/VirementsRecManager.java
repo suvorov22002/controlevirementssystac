@@ -430,6 +430,7 @@ public class VirementsRecManager implements IVirementsRecManager {
 	}
 
 	public List<ParametragesGenTeleCompense> filterParamGen(){
+		System.out.println("filterParamGen ManagerDAO " + ManagerDAO);
 		return ManagerDAO.filter(ParametragesGenTeleCompense.class, null, null, null, null, 0, -1);
 	}
 
@@ -974,8 +975,8 @@ public class VirementsRecManager implements IVirementsRecManager {
 			boolean flag = false;
 			boolean notExist = false;
 
-			openDELTAConnection();
-			if(conDELTA==null){System.out.println("----ConDelta est vide----");return null;}
+//			openDELTAConnection();
+//			if(conDELTA==null){System.out.println("----ConDelta est vide----");return null;}
 
 			int entered = 1;
 			int virJournee;
@@ -5485,7 +5486,7 @@ public class VirementsRecManager implements IVirementsRecManager {
 			
 			if(compte != null){
 				
-				if(!compte.isCfe() || !compte.isIfe()){
+				if(compte.isCfe() || compte.isIfe()){
 					list.add("COMPTE FERME OU EN INSTANCE DE FERMETURE");
 					return list;
 				}else{
@@ -5504,7 +5505,7 @@ public class VirementsRecManager implements IVirementsRecManager {
 			boolean isUser = isUserDelta(uti);
 
 			//rs = st.executeQuery(sql);
-
+            System.out.println("USER " + uti + " >>> " + isUser);
 			utiCB = isUser ? uti : " ";
 			
 			//if(uti.trim().equals(utiCB.trim()))
@@ -5572,9 +5573,11 @@ public class VirementsRecManager implements IVirementsRecManager {
 			
 			System.out.println("****in while(!koFerier || !koWeekend) ");
 			String ssDco = DateUtil.format(dsai, DateUtil.DATE_MINUS_FORMAT_SINGLE);
-			Date ddva1S = getDvaDebit(ssDco, ncp.substring(7, 10));
-			dva1S = new SimpleDateFormat("yyyy-MM-dd").format(ddva1S);
+			Date ddva1S = getDvaDebit(ssDco, ncp);
+			System.out.println("****ddva1S) " + ddva1S);
+			dva1S = DateUtil.format(ddva1S, DateUtil.DATE_MINUS_FORMAT_SINGLE);
 			
+			System.out.println("****dva1S) " + dva1S);
 //			Date dva1; //= dsai;
 //			/*****WEEKEND****/
 //			Calendar cal = Calendar.getInstance();
@@ -5781,9 +5784,13 @@ public class VirementsRecManager implements IVirementsRecManager {
 			bkeve eve = null;
 
 			for(TraitementImpots t: listTraitementImpots){
-
+				
+				logger.info(">>>> t <<<< " + t.getOpe());
+				
 				eve = new bkeve();
 				PropertyUtils.copyProperties(eve, t);
+				
+				logger.info(">>>> EVE <<<< " + eve.getOpe());
 				
 				eve = registerEventToCoreBanking(eve);
 				
@@ -6388,7 +6395,7 @@ public class VirementsRecManager implements IVirementsRecManager {
 			if(!Shared.isJSONValid(playload)) {
 				return null;
 			}
-			
+			System.out.println("EVE>>>> " + playload);
 			if (dsCbs == null) findCBSServicesDataSystem();
 			if (dsCbs != null && StringUtils.isNotBlank(dsCbs.getDbConnectionString())) {
 				
@@ -6399,14 +6406,18 @@ public class VirementsRecManager implements IVirementsRecManager {
 			    CloseableHttpResponse response = Shared.getClosableHttpClient().execute(post);
 			    HttpEntity entity = null;
 			    entity = response.getEntity();
-			    
+			  
 			    if(entity != null) {
 			    	
 			    	String content = EntityUtils.toString(entity);
 	                JSONObject json = new JSONObject(content);
 	                
+	                System.out.println("json response >>>> " + json);
+	                
 	                //Verification du code reponse
 	                String resp_code = json.getString("code");
+	                
+	                System.out.println("json resp_code >>>>>>>>>>>>>----++++ " + resp_code);
 	                
 	                if(!resp_code.equalsIgnoreCase("200")) {
 	                	return null;
@@ -6650,7 +6661,7 @@ public class VirementsRecManager implements IVirementsRecManager {
 						 //System.out.println("responseCode: " + responseCode);
 						 if ("200".equalsIgnoreCase(responseCode)) {
 							 String datVal = json.getString("data");
-							 dvaDate = DateUtil.parse(datVal, DateUtil.DATE_TIME_MINUS_FORMAT_);
+							 dvaDate = DateUtil.parse(datVal, DateUtil.DATE_MINUS_FORMAT_SINGLE);
 						 }
 			    		 
 			    	 }

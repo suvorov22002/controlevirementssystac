@@ -211,7 +211,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 			}
 
 
-			if(listOfFiles!=null&&listOfFiles.length>0){
+			if(listOfFiles!=null && listOfFiles.length>0){
 
 				/**Parcours du répertoire d'entrée***/
 				for (int i = 0; i < listOfFiles.length; i++) {
@@ -245,7 +245,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 						String ext = FilenameUtils.getExtension(fichierEntree); 
 
 
-						if(ext.equals("csv")|| ext.equals("CSV")){
+						if(ext.equals("csv") || ext.equals("CSV")){
 
 							if(traitementEtCopieFichiers(listOfFiles[i].getName(), pathEntree, pathArchiveEntree, aCopier)){
 								if(fichiersTraite.isEmpty())
@@ -341,7 +341,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 			String repArchiveEntree = parametragesImpots.getRepertoireArchiveEntree();
 
 
-
+			System.out.println("*********Exécution du Traitement********");
 			/*********Exécution du Traitement********/
 			doTraitement(repEntree, repArchiveEntree, nbrFichACopier, nbrFichCopie,fichiersTraite, "rapportTraitementImpots.jasper", "ReportTraitementImpots.xhtml");
 
@@ -376,7 +376,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 
 			if(fileLines!=null && !fileLines.isEmpty()){
 
-				int j = 0;
+		//		int j = 0;
 				int position = 0;
 				String lastOpe = "";
 				int lastPositionIncremented = 0;
@@ -387,7 +387,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 					toTraite = true;
 
 					TraitementImpots traitementImpots = new TraitementImpots();
-					
+					System.out.println("USER LOGIN >>>>> " + user);
 					traitementImpots.setUtiPortal(user.getLogin());
 
 					//Récupération des valeurs paramétrés dans le module (param généraux pour SYSTAC et SYGMA)
@@ -659,12 +659,13 @@ public class TraitementImpotsDialog extends AbstractDialog{
 
 						//Aller dans Amplitude récupérer les valeurs restantes
 						List<String> recupElementsCB = ViewHelper.virementsRecManager.recuperationsValCB(uti, traitementImpots.getCli1(), traitementImpots.getAge(), traitementImpots.getNcp1(), traitementImpots.getClc1(), parametragesImpots.getDev1(), dsai);
-						if(recupElementsCB!=null && !recupElementsCB.isEmpty()){
+						System.out.println("recupElementsCB: " + recupElementsCB);
+						if(recupElementsCB != null && !recupElementsCB.isEmpty()){
 
 							if(recupElementsCB.get(0).equals("COMPTE FERME OU EN INSTANCE DE FERMETURE")){
 								System.out.println("/*****************REJET POUR COMPTE FERME***********************/");
 								/*****************REJET POUR COMPTE FERME***********************/
-								if(parametragesImpots.getMotifsDeRejet()!=null&&!parametragesImpots.getMotifsDeRejet().isEmpty()){
+								if(parametragesImpots.getMotifsDeRejet()!=null && !parametragesImpots.getMotifsDeRejet().isEmpty()){
 									for(MotifsDeRejet m: parametragesImpots.getMotifsDeRejet()){
 										if(m.getTypeRejet().equals(TypeRejet.COMPTE_FERME)){
 											motifDeRejet = m.getTypeRejet();
@@ -694,7 +695,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 							}else{
 
 								uti = recupElementsCB.get(0);
-								if(uti.equals("")||uti.isEmpty()){
+								if(uti.equals("") || uti.isEmpty()){
 									uti = user.getLogin();
 								}
 								traitementImpots.setUti(uti);
@@ -732,7 +733,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 										traitementImpots.setGes1(ges1);
 
 										String dva1S = recupElementsCB.get(4);
-										dva1 = new SimpleDateFormat("yyyy-MM-dd").parse(dva1S);
+										dva1 = new SimpleDateFormat("ddMMyyyy").parse(dva1S);
 										String dva1S2 = new SimpleDateFormat("dd/MM/yyyy").format(dva1);
 										Date dva12 = new SimpleDateFormat("dd/MM/yyyy").parse(dva1S2);
 										traitementImpots.setDva1(dva12);
@@ -811,7 +812,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 
 					}
 
-					System.out.println("*****value of j****" + j);
+					System.out.println("*****value of j****" + listRejet.size());
 
 					//Créer l'évènement
 					/*if(lastOpe.equals(traitementImpots.getOpe())){
@@ -825,7 +826,7 @@ public class TraitementImpotsDialog extends AbstractDialog{
 					String eve="";
 					if(mapOpeLastEve!=null && !mapOpeLastEve.isEmpty()){
 						if(mapOpeLastEve.get(traitementImpots.getOpe())==null){
-							eve=ViewHelper.virementsRecManager.findMaxEveOfBkeve(traitementImpots.getOpe().trim(), 1);
+							eve = ViewHelper.virementsRecManager.findMaxEveOfBkeve(traitementImpots.getOpe().trim(), 1);
 							System.out.println("***eve***" + eve);
 
 						}else{
@@ -873,14 +874,17 @@ public class TraitementImpotsDialog extends AbstractDialog{
 				mapOpeLastEve.clear();
 
 			}
-
-			System.out.println("-------Going to insert in bkeve------" + listTraitementImpots.size() + " virements");
-			/********Insertion dans bkeve******/
-			ViewHelper.virementsRecManager.insertIntoBkeve(listTraitementImpots);  //Pour les Systac et Sygma
-
-			boolean error = false;
+			
 			try{
+				
+				System.out.println("-------Going to insert listTraitementImpots in bkeve------" + listTraitementImpots.size() + " virements");
+				/********Insertion dans bkeve******/
+				ViewHelper.virementsRecManager.insertIntoBkeve(listTraitementImpots);  //Pour les Systac et Sygma
+	
+				boolean error = false;
+			
 				if(listTraitementSygmaPlus!=null && !listTraitementSygmaPlus.isEmpty()){ //Pour les virements Sygma uniquement on insert aussi dans bkevec et dans bkrtgseve
+					System.out.println("-------Going to insert listTraitementSygmaPlus in bkeve------" + listTraitementSygmaPlus.size() + " virements");
 					ViewHelper.virementsRecManager.insertIntoBkeveC(listTraitementSygmaPlus, parametragesImpots);
 					ViewHelper.virementsRecManager.insertIntoBkrtgsEve(listTraitementSygmaPlus, parametragesImpots);
 				}
